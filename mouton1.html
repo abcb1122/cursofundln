@@ -3,356 +3,364 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>El Viaje de un Pago: Guía Completa de la Red Lightning</title>
+    <title>Protocolo de la Red Lightning: Un Análisis Técnico y Conceptual</title>
     <style>
+        /* --- MODO CLARO (POR DEFECTO) --- */
+        :root {
+            --bg-color: #f8f9fa;
+            --text-color: #212529;
+            --container-bg: #ffffff;
+            --border-color: #dee2e6;
+            --heading-color: #212529;
+            --accent-color: #0d6efd;
+            --blockquote-bg: #f1f3f5;
+            --blockquote-border: #0d6efd;
+            --code-bg: #e9ecef;
+            --code-color: #343a40;
+            --subtle-text: #495057;
+        }
+
         body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            line-height: 1.6;
-            color: #E0E0E0;
-            background-color: #121212;
+            font-family: Georgia, 'Times New Roman', Times, serif;
+            line-height: 1.7;
+            background-color: var(--bg-color);
+            color: var(--text-color);
             margin: 0;
             padding: 20px;
+            transition: background-color 0.3s, color 0.3s;
         }
         .container {
-            max-width: 800px;
-            margin: 0 auto;
-            background-color: #1E1E1E;
-            padding: 20px 40px;
-            border-radius: 12px;
-            box-shadow: 0 0 20px rgba(0,0,0,0.5);
+            max-width: 900px;
+            margin: 20px auto;
+            background-color: var(--container-bg);
+            padding: 40px 60px;
+            border: 1px solid var(--border-color);
+            transition: background-color 0.3s, border-color 0.3s;
         }
-        h1, h2, h3, h4 {
-            font-family: "Georgia", serif;
-            color: #BB86FC;
-            border-bottom: 2px solid #373737;
-            padding-bottom: 10px;
+        h1, h2, h3, h4, .toc h2 {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            font-weight: 600;
+            color: var(--heading-color);
         }
         h1 {
             text-align: center;
-            font-size: 2.5em;
-            border-bottom: 3px solid #BB86FC;
+            font-size: 2.6em;
+            font-weight: 700;
+            border-bottom: 2px solid #343a40;
+            margin-bottom: 20px;
+            padding-bottom: 20px;
+        }
+        .abstract {
+            text-align: justify;
+            font-style: italic;
+            color: var(--subtle-text);
+            margin-bottom: 40px;
+            padding: 10px 20px;
+            background-color: var(--blockquote-bg);
+            border-left: 4px solid var(--blockquote-border);
+        }
+        .abstract strong {
+            font-style: normal;
         }
         h2 {
             font-size: 2em;
-            margin-top: 40px;
+            margin-top: 50px;
+            border-bottom: 1px solid #ccc;
+            padding-bottom: 10px;
         }
         h3 {
             font-size: 1.5em;
-            color: #03DAC6;
-            border-bottom-style: dashed;
+            color: #343a40;
+            border-bottom-style: none;
+            margin-top: 30px;
+        }
+        h4 {
+            font-size: 1.1em;
+            font-style: italic;
+            color: var(--subtle-text);
+            margin-bottom: -10px;
+            font-weight: normal;
         }
         p, li {
-            font-size: 1.1em;
+            font-size: 1.05em;
             text-align: justify;
         }
         blockquote {
-            background-color: #2a2a2a;
-            border-left: 5px solid #03DAC6;
-            padding: 15px;
-            margin: 20px 0;
-            border-radius: 5px;
-            font-style: italic;
+            background-color: var(--blockquote-bg);
+            border: 1px solid var(--border-color);
+            padding: 15px 20px;
+            margin: 25px 0;
+            border-radius: 4px;
         }
         code, .term {
-            background-color: #333;
-            color: #FDFD96;
-            padding: 2px 6px;
+            background-color: var(--code-bg);
+            color: var(--code-color);
+            padding: 2px 5px;
             border-radius: 4px;
-            font-family: "Courier New", Courier, monospace;
+            font-family: "SFMono-Regular", Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+            font-size: 0.9em;
         }
         .glossary {
-            margin-top: 50px;
+            margin-top: 60px;
+            padding-top: 20px;
+            border-top: 2px solid #343a40;
         }
         .glossary dt {
-            font-weight: bold;
-            color: #03DAC6;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            font-weight: 600;
+            color: var(--accent-color);
             font-size: 1.2em;
             margin-top: 20px;
         }
         .glossary dd {
-            margin-left: 20px;
-            padding-bottom: 10px;
-            border-bottom: 1px solid #373737;
+            margin-left: 25px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #e9ecef;
         }
         a {
-            color: #CF6679;
+            color: var(--accent-color);
             text-decoration: none;
         }
         a:hover {
             text-decoration: underline;
         }
         .toc {
-            background: #252525;
-            padding: 20px;
-            border-radius: 8px;
-            margin-bottom: 40px;
+            background: var(--container-bg);
+            padding: 25px;
+            border-radius: 4px;
+            border: 1px solid var(--border-color);
+            margin-bottom: 50px;
         }
         .toc ul {
             list-style-type: none;
             padding: 0;
         }
         .toc li {
-            margin: 10px 0;
+            margin: 12px 0;
+            text-align: left;
+        }
+         .toc h2 {
+            margin-top: 0;
+            font-size: 1.8em;
+            text-align: center;
+         }
+
+        /* --- MODO OSCURO (DINÁMICO) --- */
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --bg-color: #121212;
+                --text-color: #E0E0E0;
+                --container-bg: #1E1E1E;
+                --border-color: #373737;
+                --heading-color: #BB86FC;
+                --accent-color: #03DAC6;
+                --blockquote-bg: #2a2a2a;
+                --blockquote-border: #03DAC6;
+                --code-bg: #333;
+                --code-color: #FDFD96;
+                --subtle-text: #a0a0a0;
+            }
+
+            h1 { border-bottom-color: #BB86FC; }
+            h2 { border-color: #373737; }
+            h3 { color: #E0E0E0; }
+            .glossary { border-top-color: #BB86FC; }
+            .glossary dd { border-color: #373737; }
+            a { color: #CF6679; }
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>El Viaje de un Pago: Una Guía Completa de la Red Lightning</h1>
-        <p>Bienvenido a esta guía definitiva sobre la Red Lightning de Bitcoin. Si alguna vez te has preguntado cómo es posible enviar dinero de forma instantánea y casi gratis a cualquier parte del mundo, estás en el lugar correcto. Olvídate de todas las palabras técnicas y complicadas. Aquí explicaremos todo desde cero, como si tuvieras 15 años, usando analogías simples para desvelar la magia que hay detrás.</p>
+        <h1>Protocolo de la Red Lightning:<br/>Un Análisis Técnico y Conceptual</h1>
+        <div class="abstract">
+            <p><strong>Abstract:</strong> Este documento ofrece una descripción completa y accesible del protocolo de la Red Lightning, una solución de segunda capa para la red Bitcoin. Se abordan los mecanismos fundamentales, desde la creación y operación de canales de pago hasta los protocolos de enrutamiento y las futuras implementaciones con Taproot. El objetivo es desmitificar la complejidad técnica del protocolo a través de analogías conceptuales, haciéndolo comprensible para un público no especializado sin sacrificar la precisión de los conceptos subyacentes.</p>
+        </div>
 
         <div class="toc">
-            <h2>Tabla de Contenidos</h2>
+            <h2>Índice de Contenidos</h2>
             <ul>
-                <li><a href="#cap1">Capítulo 1: El Nacimiento de un Canal (La Caja Fuerte Compartida)</a></li>
-                <li><a href="#cap2">Capítulo 2: La Vida Dentro del Canal (El Documento Compartido)</a></li>
-                <li><a href="#cap3">Capítulo 3: El Salto a la Red (El Viaje por Carretera)</a></li>
-                <li><a href="#cap4">Capítulo 4: Los Secretos del Mensajero (La Magia de Sphinx)</a></li>
-                <li><a href="#cap5">Capítulo 5: El Final del Camino (Cierre y Jubilación)</a></li>
-                <li><a href="#cap6">Capítulo 6: El Futuro ya está Aquí (Canales Invisibles con Taproot)</a></li>
-                <li><a href="#cap7">Capítulo 7: La Privacidad de tu Billetera (El Detective y el Bibliotecario)</a></li>
-                <li><a href="#glosario">Glosario Completo: De la A a la Z</a></li>
+                <li><a href="#cap1">1.0 Introducción: La Creación de Canales de Pago</a></li>
+                <li><a href="#cap2">2.0 Operación Interna de un Canal: Actualización de Estado</a></li>
+                <li><a href="#cap3">3.0 La Red de Canales: Enrutamiento de Pagos Multi-Salto</a></li>
+                <li><a href="#cap4">4.0 El Protocolo Sphinx: Privacidad en el Enrutamiento</a></li>
+                <li><a href="#cap5">5.0 Ciclo de Vida del Canal: Cierre y Finalización</a></li>
+                <li><a href="#cap6">6.0 Evolución del Protocolo: Canales Taproot</a></li>
+                <li><a href="#cap7">7.0 Consideraciones de Privacidad para Clientes Ligeros</a></li>
+                <li><a href="#glosario">8.0 Glosario de Términos</a></li>
             </ul>
         </div>
 
         <section id="cap1">
-            <h2>Capítulo 1: El Nacimiento de un Canal (La Caja Fuerte Compartida)</h2>
-            <p>Bitcoin es increíble, pero su red principal (la <span class="term">Blockchain</span>) es a veces como una autopista congestionada: lenta y cara para transacciones pequeñas como pagar un café. La <span class="term">Red Lightning</span> es la solución: una red de "carreteras privadas" que se construyen sobre la autopista principal para hacer pagos instantáneos y muy baratos.</p>
-            <p>La pieza fundamental de esta red es el <strong>canal de pago</strong>.</p>
+            <h2>1.0 Introducción: La Creación de Canales de Pago</h2>
+            <p>La red principal de Bitcoin (la <span class="term">Blockchain</span>) garantiza seguridad y descentralización, pero a costa de la escalabilidad, lo que resulta en tiempos de confirmación y costos que pueden ser prohibitivos para micropagos. La <span class="term">Red Lightning</span> se propone como una solución a este problema, operando como una segunda capa que permite transacciones instantáneas y de bajo costo. La unidad fundamental de esta red es el <strong>canal de pago</strong>.</p>
             
+            <h4>Modelo Conceptual: La Caja Fuerte Bipartita</h4>
             <blockquote>
-                <p><strong>Analogía Clave: La Caja Fuerte Compartida.</strong><br>
-                Piensa en un canal como una caja fuerte digital compartida entre dos personas, digamos Alicia y Bob. Para abrir cualquier cosa en esta caja, se necesitan dos llaves, la de Alicia y la de Bob. Es imposible abrirla con una sola.</p>
+                <p>Un canal de pago puede concebirse como una caja fuerte digital cuya custodia es compartida entre dos partes. El acceso a los fondos depositados en ella requiere la autorización criptográfica (firma) de ambos participantes, estableciendo un mecanismo de control 2 de 2.</p>
             </blockquote>
 
-            <h3>El Problema: ¿Y si tu amigo desaparece?</h3>
-            <p>Alicia quiere abrir una caja fuerte con Bob y ella pondrá el dinero inicial. Si simplemente crea la caja y mete su dinero, ¿qué pasa si Bob desaparece para siempre? El dinero de Alicia quedaría atrapado, porque para sacarlo necesita la llave de Bob. ¡Menudo problema!</p>
-            
-            <h3>La Solución: El Baile de la Negociación Segura</h3>
-            <p>Para evitar este riesgo, los programas de Alicia y Bob realizan un "baile" muy cuidadoso, una negociación paso a paso para asegurarse de que nadie pueda hacer trampa.</p>
+            <h3>1.1 El Problema de la Confianza y el Protocolo de Apertura</h3>
+            <p>La creación de un canal presenta un dilema: la parte que financia el canal (el fundador) se expone a que la contraparte se vuelva inactiva, dejando los fondos bloqueados indefinidamente. Para mitigar este riesgo, el protocolo define una secuencia de negociación determinista y segura.</p>
+            <p>Este proceso, al que denominaremos "baile de negociación", consiste en un intercambio de mensajes que asegura que ninguna de las partes pueda actuar en detrimento de la otra:</p>
             <ol>
-                <li><strong>La Propuesta (`open_channel`):</strong> Alicia le dice a Bob: "Oye, quiero abrir una caja fuerte contigo y poner este dinero. Aquí tienes mi llave".</li>
-                <li><strong>La Aceptación (`accept_channel`):</strong> Bob responde: "¡Claro! Aquí tienes mi llave". Ahora ambos conocen las dos llaves necesarias.</li>
-                <li><strong>El Contrato de Emergencia (`funding_created`):</strong> Este es el paso crucial. Alicia prepara la caja fuerte con el dinero, pero <em>aún no la cierra con candado</em>. Primero, le envía a Bob un "contrato de emergencia" que dice "si algo sale mal, todo el dinero vuelve a Alicia" y le pide que lo firme.</li>
-                <li><strong>La Firma Final (`funding_signed`):</strong> Bob ve que el contrato es justo, lo firma y se lo devuelve a Alicia. ¡Ahora Alicia tiene una garantía firmada!</li>
-                <li><strong>La Puesta en Marcha:</strong> Con la garantía en mano, Alicia por fin cierra la caja fuerte con candado y la registra en la red principal de Bitcoin.</li>
-                <li><strong>¡Listos! (`channel_ready`):</strong> Ambos confirman que la caja está registrada y se envían un último "¡listo!". El canal está abierto, pero es un secreto entre ellos.</li>
+                <li><strong>Propuesta (`open_channel`):</strong> El fundador inicia la comunicación, especificando los parámetros del canal y su primera clave pública.</li>
+                <li><strong>Aceptación (`accept_channel`):</strong> La contraparte responde con sus propias claves, aceptando los términos.</li>
+                <li><strong>Creación del Contrato de Respaldo (`funding_created`):</strong> El fundador construye la transacción de fondos pero no la transmite. En su lugar, firma y entrega a la contraparte un "contrato de emergencia" (una transacción de compromiso) que le garantiza a la contraparte el acceso a sus fondos si el fundador desapareciera.</li>
+                <li><strong>Firma Recíproca (`funding_signed`):</strong> La contraparte verifica el contrato, lo considera justo y devuelve su propia firma para el contrato de emergencia del fundador.</li>
+                <li><strong>Transmisión y Confirmación (`channel_ready`):</strong> Con esta garantía criptográfica en su poder, el fundador transmite de forma segura la transacción de fondos a la Blockchain. Tras su confirmación, ambas partes señalan que el canal está operativo.</li>
             </ol>
             
-            <h3>Haciéndolo Público: El Anuncio del Canal</h3>
-            <p>Si quieren que su canal sirva para enrutar pagos de otros (y ganar comisiones), deben hacerlo público. Es como registrar una empresa en el Registro Mercantil.</p>
+            <h3>1.2 Anuncio Público del Canal</h3>
+            <p>Un canal recién creado es, por defecto, privado. Para que pueda ser utilizado por la red para enrutar pagos de terceros, debe ser anunciado públicamente.</p>
+            <h4>Modelo Conceptual: El Registro Público</h4>
             <blockquote>
-                <p><strong>Analogía: El Registro Mercantil.</strong><br>
-                Deben rellenar un "formulario público" (<span class="term">channel_announcement</span>) y firmarlo con cuatro firmas: dos con las "llaves de la cuenta bancaria" (para probar que controlan el dinero) y dos con los "sellos de la empresa" (sus identidades de nodo), para probar que aprueban el anuncio.</p>
+                <p>El anuncio de un canal es análogo a la inscripción de una sociedad en un registro público. Se presenta un "formulario" (<span class="term">channel_announcement</span>) que contiene pruebas criptográficas irrefutables de la existencia y legitimidad del canal. Requiere cuatro firmas distintas para vincular las identidades de los nodos en la red Lightning con las claves que controlan los fondos en la Blockchain.</p>
             </blockquote>
-            <p>Cualquier persona en la red puede verificar estas firmas y la existencia del dinero en la Blockchain, asegurándose de que el canal es legítimo antes de usarlo.</p>
         </section>
 
         <section id="cap2">
-            <h2>Capítulo 2: La Vida Dentro del Canal (El Documento Compartido)</h2>
-            <p>Una vez que la caja fuerte está abierta, ¿cómo se pasan el dinero adentro? No mueven monedas físicas. En su lugar, actualizan un "estado de cuentas".</p>
+            <h2>2.0 Operación Interna de un Canal: Actualización de Estado</h2>
+            <p>Dentro de un canal, los fondos no se mueven físicamente. En su lugar, los participantes actualizan un "estado de cuentas" mutuo, representado por un par de transacciones de compromiso (<span class="term">Commitment Transactions</span>).</p>
+            <h4>Modelo Conceptual: El Documento de Control de Versiones</h4>
             <blockquote>
-                <p><strong>Analogía Clave: El Documento de Google Compartido.</strong><br>
-                Piensa en el estado del canal como un documento compartido. Cada vez que hay un pago, no se borra y se reescribe, sino que se crea una nueva versión del documento con el saldo actualizado. Las versiones viejas se archivan y se marcan como obsoletas.</p>
+                <p>El estado del canal es como un documento compartido bajo un sistema de control de versiones. Cada pago es una nueva edición. En lugar de modificar el documento existente, se crea una nueva versión confirmada (`commit`), y la versión anterior se invalida criptográficamente.</p>
             </blockquote>
 
-            <h3>El Plan de Reparto Asimétrico y el Castigo</h3>
-            <p>Para cada estado de cuentas, no hay un solo "plan de reparto", sino dos versiones ligeramente distintas, una para Alicia y otra para Bob. Esto es para saber a quién culpar si alguien intenta hacer trampa.</p>
-            <p>La regla de oro es: <strong>en tu propia versión del plan, cualquier dinero que te asignes a ti mismo tiene una penalización de tiempo.</strong> Si cierras el canal de forma forzosa, tienes que esperar un tiempo para reclamar tu dinero. Esto le da a tu compañero una ventana para reaccionar si estás usando un plan viejo y obsoleto.</p>
+            <h3>2.1 La Naturaleza Asimétrica y el Mecanismo de Penalización</h3>
+            <p>Para evitar que una parte maliciosa transmita una versión antigua del estado donde poseía más fondos, el sistema es asimétrico y punitivo. La regla fundamental es que, en la versión del estado que un participante posee, el acceso a sus propios fondos está sujeto a un retraso temporal (<span class="term">to_self_delay</span>). Este retraso ofrece una ventana de oportunidad para que la contraparte detecte el fraude y active un mecanismo de penalización.</p>
             
-            <h3>La Llave de Castigo de Dos Mitades</h3>
-            <p>¿Cómo se evita que Alicia use un plan viejo donde tenía más dinero? Dándole a Bob el poder para castigarla. Esto se logra con la <span class="term">Clave de Revocación</span>.</p>
+            <h3>2.2 La Clave de Revocación</h3>
+            <p>Este mecanismo se basa en la <span class="term">Clave de Revocación</span>, que invalida criptográficamente los estados antiguos.</p>
+            <h4>Modelo Conceptual: La Llave de Castigo de Dos Mitades</h4>
             <blockquote>
-                <p><strong>Analogía: La Llave de Castigo de Dos Mitades.</strong><br>
-                Imagina que la "cláusula de castigo" de cada plan se activa con una llave mágica que se forja con dos mitades: una mitad secreta de Alicia y una mitad secreta de Bob. Alicia no conoce la mitad de Bob, y viceversa.</p>
+                <p>La activación de la cláusula de castigo de un estado obsoleto requiere una llave criptográfica especial. Esta llave se construye a partir de dos mitades secretas, una de cada participante. Al acordar un nuevo estado, cada parte entrega a la otra su mitad secreta de la llave correspondiente al estado anterior. De este modo, si alguien intenta transmitir un estado revocado, la contraparte poseerá ambas mitades de la llave de castigo, lo que le permite reclamar la totalidad de los fondos del infractor.</p>
             </blockquote>
-            <p>Cuando quieren actualizar el estado (crear una nueva versión del documento), hacen lo siguiente: para invalidar la versión vieja, Alicia le da a Bob <em>su mitad secreta de la llave de castigo de esa versión vieja</em>. Ahora, Bob tiene las dos mitades. Si Alicia intenta usar esa versión vieja, Bob puede forjar la llave completa y ¡BAM! se lleva todo el dinero de Alicia de ese plan como castigo. Esto hace que hacer trampa sea increíblemente estúpido.</p>
-
-            <h3>El Baile del Compromiso</h3>
-            <p>Para actualizar el estado del "documento", realizan un baile similar al de la apertura:</p>
-            <ol>
-                <li>Uno de los dos propone un cambio (<span class="term">update_add_htlc</span>).</li>
-                <li>Para hacerlo oficial, uno envía un <span class="term">commitment_signed</span> ("Quiero guardar esta nueva versión, aquí está mi firma").</li>
-                <li>El otro responde con un <span class="term">revoke_and_ack</span> ("Confirmo la nueva versión y te doy mi mitad de la llave de la versión anterior para que sepas que no la usaré").</li>
-            </ol>
-            <p>Este proceso asegura que ambos estén siempre sincronizados y que los saldos se actualicen de forma segura y sin confianza.</p>
         </section>
 
         <section id="cap3">
-            <h2>Capítulo 3: El Salto a la Red (El Viaje por Carretera)</h2>
-            <p>Ya sabemos cómo funciona un canal entre dos personas. Pero el poder de Lightning está en pagarle a alguien con quien NO tienes un canal directo. Esto se logra enrutando el pago a través de intermediarios.</p>
+            <h2>3.0 La Red de Canales: Enrutamiento de Pagos Multi-Salto</h2>
+            <p>El verdadero potencial de Lightning reside en su capacidad para enrutar pagos a través de múltiples nodos intermediarios, formando una red interconectada. Esto se logra sin necesidad de que los intermediarios confíen entre sí.</p>
+             <h4>Modelo Conceptual: La Planificación Logística</h4>
             <blockquote>
-                <p><strong>Analogía Clave: El Viaje por Carretera.</strong><br>
-                Enviar un pago por la red es como planificar un viaje por carretera para entregar un paquete. Tu billetera actúa como un GPS que tiene que encontrar la mejor ruta, calcular los peajes y preparar las instrucciones para cada parada.</p>
+                <p>Enviar un pago a través de la red es un ejercicio de logística similar a planificar una ruta de entrega. La billetera del emisor actúa como un sistema de planificación que debe calcular la ruta óptima y preparar un conjunto de instrucciones seguras para cada intermediario.</p>
             </blockquote>
-
-            <h3>El Paquete con Candado Especial (HTLC)</h3>
-            <p>La pieza central que hace esto posible es el <span class="term">HTLC (Contrato Bloqueado por Hash y Tiempo)</span>.</p>
+            
+            <h3>3.1 El Contrato HTLC</h3>
+            <p>El mecanismo que posibilita estos pagos encadenados es el <span class="term">HTLC (Contrato Bloqueado por Hash y Tiempo)</span>.</p>
+            <h4>Modelo Conceptual: El Paquete con Candado Condicional</h4>
             <blockquote>
-                <p><strong>Analogía: El Paquete con Candado de Contraseña y Cronómetro.</strong><br>
-                Un HTLC es como un paquete con un candado especial que tiene dos formas de abrirse:
+                <p>Un HTLC es un contrato condicional que se puede resolver de dos maneras:
                 <ol>
-                    <li><strong>Con una Contraseña Secreta:</strong> Si sabes la contraseña (el <span class="term">preimage</span>), abres el paquete y te quedas el dinero.</li>
-                    <li><strong>Con el Tiempo:</strong> Si nadie abre el paquete antes de que un cronómetro llegue a cero, el paquete se devuelve automáticamente a quien lo envió.</li>
+                    <li><strong>Condición de Conocimiento (Hash Lock):</strong> Los fondos se liberan al destinatario si este presenta una prueba de conocimiento, una "contraseña" secreta (<span class="term">preimage</span>).</li>
+                    <li><strong>Condición Temporal (Time Lock):</strong> Si la contraseña no se presenta antes de un plazo definido, los fondos se revierten automáticamente al emisor.</li>
                 </ol>
                 </p>
             </blockquote>
             
-            <h3>Planificando el Viaje</h3>
-            <p>Imagina que Alicia quiere pagarle a Dave, pasando por Bob y Charlie (Alicia -> Bob -> Charlie -> Dave).</p>
-            <ol>
-                <li><strong>La Factura:</strong> Dave crea una contraseña secreta y le da a Alicia el "candado" (el <span class="term">hash</span>) que solo esa contraseña puede abrir.</li>
-                <li><strong>El GPS:</strong> La billetera de Alicia consulta su "mapa" de la red y las "reglas de cada carretera" (tarifas y tiempos de cada canal) para encontrar la ruta más barata.</li>
-                <li><strong>Cálculo Hacia Atrás:</strong> Para saber cuánto dinero enviar, Alicia calcula los peajes hacia atrás. Primero calcula cuánto necesita Charlie para pagarle a Dave más su peaje. Luego, calcula cuánto necesita Bob para pagarle a Charlie más su peaje. Así sabe el monto total que ella debe enviar.</li>
-            </ol>
-            
-            <h3>La Entrega: La Reacción en Cadena</h3>
-            <p>Alicia le pasa a Bob un HTLC (un paquete con el candado de Dave). Bob, para obtener la contraseña, le pasa a su vez otro HTLC a Charlie. Charlie se lo pasa a Dave.</p>
-            <ol>
-                <li>Dave recibe el paquete, usa su contraseña secreta para abrirlo y cobrar. Al hacerlo, le revela la contraseña a Charlie.</li>
-                <li>¡Ahora Charlie tiene la contraseña! La usa para abrir su paquete de Bob y cobrar su parte, revelándole la contraseña a Bob.</li>
-                <li>¡Ahora Bob tiene la contraseña! La usa para abrir el paquete original de Alicia y cobrar su comisión.</li>
-            </ol>
-            <p>El pago se completa como una fila de fichas de dominó cayendo hacia atrás. Si algo falla, los cronómetros se activan y todo el mundo recupera su dinero. Es un sistema atómico: o todo funciona, o no pasa nada.</p>
+            <h3>3.2 Proceso de Enrutamiento</h3>
+            <p>El emisor construye una cadena de HTLCs a través de los intermediarios hasta el destinatario final. La resolución del pago se produce en una reacción en cadena inversa: el destinatario presenta la contraseña para reclamar su pago, revelándosela al penúltimo intermediario. Este la usa para reclamar al antepenúltimo, y así sucesivamente hasta llegar al emisor. Si algún eslabón falla, los bloqueos de tiempo se activan en cascada, asegurando que nadie pierda fondos. Este principio se conoce como atomicidad.</p>
         </section>
 
         <section id="cap4">
-            <h2>Capítulo 4: Los Secretos del Mensajero (La Magia de Sphinx)</h2>
-            <p>Ya sabemos que para dar las instrucciones a cada parada del viaje, Alicia usa un "Paquete Cebolla". Pero, ¿cómo se construye este paquete para que sea perfectamente privado?</p>
+            <h2>4.0 El Protocolo Sphinx: Privacidad en el Enrutamiento</h2>
+            <p>Para transmitir las instrucciones de enrutamiento a cada intermediario de forma privada, Lightning utiliza un formato de paquete conocido como Sphinx.</p>
+             <h4>Modelo Conceptual: La Caja Rusa Criptográfica</h4>
             <blockquote>
-                <p><strong>Analogía Clave: La Caja Rusa con Relleno Inteligente.</strong><br>
-                El paquete final, llamado <span class="term">Paquete Sphinx</span>, es como una serie de cajas rusas (matrioskas). Cada intermediario solo puede abrir su propia caja, encontrar sus instrucciones y la siguiente caja más pequeña, sin tener idea de cuántas cajas más hay dentro, quién envió el paquete original o cuál es el destino final.</p>
+                <p>El <span class="term">Paquete Sphinx</span> funciona como una serie de cajas rusas (matrioskas). El emisor encripta las instrucciones para el último intermediario, las mete en una caja, la sella, y luego encripta esa caja con las instrucciones para el penúltimo, y así sucesivamente. Cada intermediario solo puede abrir su propia capa, leer sus instrucciones y pasar la caja interior al siguiente, sin conocer el origen, el destino final, ni la longitud total de la ruta.</p>
             </blockquote>
             
-            <h3>Las Herramientas del Cripto-Mago</h3>
-            <p>Para construir esta caja rusa mágica, se usan varias herramientas criptográficas:</p>
+            <h3>4.1 Fundamentos Criptográficos</h3>
+            <p>Sphinx se basa en varias técnicas criptográficas para garantizar la seguridad y la privacidad:</p>
             <ul>
-                <li><strong>El Secreto de la Pintura (Diffie-Hellman):</strong> Permite que Alicia y cada intermediario creen un "color secreto" (una clave secreta compartida) que solo ellos dos conocen, de forma segura.</li>
-                <li><strong>La Máscara Mágica (XOR):</strong> Una forma simple y reversible de encriptar las instrucciones de cada capa de la cebolla usando la clave secreta compartida.</li>
-                <li><strong>Los Nombres en Clave (Claves Efímeras):</strong> Alicia no usa su identidad real. Usa una clave temporal y diferente para cada intermediario, mejorando aún más la privacidad.</li>
+                <li><strong>Intercambio de Claves Diffie-Hellman:</strong> Permite al emisor y a cada intermediario establecer una clave secreta compartida de forma segura.</li>
+                <li><strong>Cifrado por Flujo (XOR):</strong> Utiliza las claves secretas compartidas para encriptar cada capa de la "cebolla" de forma eficiente y reversible.</li>
+                <li><strong>Claves Efímeras:</strong> El emisor utiliza claves temporales de un solo uso para cada salto, evitando vincular los pagos a su identidad de nodo principal.</li>
             </ul>
-
-            <h3>El Proceso de Envoltura y Desenvoltura</h3>
-            <p>Alicia construye la cebolla de atrás hacia adelante, desde Dave hasta Bob. Lo más ingenioso es que, para que las firmas digitales de cada capa funcionen, Alicia añade un **"relleno inteligente"**. Este relleno se transforma mágicamente a medida que cada capa se desencripta, asegurando que el contenido que recibe cada intermediario sea exactamente el que necesita para validar la firma y pasar el paquete al siguiente.</p>
-            <p>Cuando un intermediario recibe el paquete, este siempre tiene el mismo tamaño. El intermediario usa su clave secreta compartida con Alicia para "quitar su máscara" (desencriptar), leer sus instrucciones y pasar el resto del paquete, que sigue teniendo el mismo tamaño, al siguiente en la ruta.</p>
-
-            <h3>El Mensaje de Error que Vuelve</h3>
-            <p>Si un intermediario (digamos, Charlie) encuentra un error, escribe un mensaje, lo encripta con su clave secreta compartida con Alicia y se lo devuelve al anterior (Bob). Bob no puede leerlo, así que simplemente lo vuelve a encriptar con *su* clave y se lo devuelve a Alicia. Alicia recibe un paquete doblemente encriptado, lo desencripta capa por capa y así descubre exactamente quién envió el error y por qué.</p>
+             <p>El protocolo también incluye un sofisticado mecanismo de "relleno" para asegurar que el paquete mantenga un tamaño constante en cada salto, evitando que los intermediarios puedan inferir su posición en la ruta. Asimismo, implementa un sistema para el retorno de mensajes de error que preserva la privacidad del nodo que origina el error.</p>
         </section>
-
+        
         <section id="cap5">
-            <h2>Capítulo 5: El Final del Camino (Cierre y Jubilación)</h2>
-            <p>Todo canal tiene un ciclo de vida. Ya vimos cómo nace y cómo vive. Ahora veamos cómo termina.</p>
-            
-            <h3>El Final Feliz: Cierre Cooperativo</h3>
-            <p>Este es el escenario ideal. Alicia y Bob deciden que ya no necesitan el canal y quieren cerrar su "caja fuerte" de mutuo acuerdo.</p>
-            <blockquote>
-                <p><strong>Analogía: Finalizar y Publicar el Documento Compartido.</strong><br>
-                Es como decidir que el documento de Google en el que trabajaban ya está terminado y listo para ser publicado.</p>
-            </blockquote>
-            <ol>
-                <li><strong>No más ediciones (`shutdown`):</strong> Uno de ellos envía un mensaje diciendo "quiero cerrar". A partir de ahí, ya no se pueden añadir nuevos pagos, solo resolver los que ya estaban en curso.</li>
-                <li><strong>Negociar la Tarifa de Publicación (`closing_signed`):</strong> Para registrar el cierre en la Blockchain, hay que pagar una pequeña comisión. Alicia y Bob negocian esta comisión. Alicia propone una, Bob puede aceptarla o contraproponer otra. Intercambian firmas para cada propuesta hasta que están de acuerdo.</li>
-                <li><strong>Publicación Final:</strong> Una vez que ambos han firmado la misma versión de la transacción de cierre, cualquiera de los dos puede enviarla a la red de Bitcoin. El dinero de la caja fuerte se reparte a sus dueños y el canal se cierra para siempre.</li>
-            </ol>
-            <p>Lo maravilloso es que, aunque hayan hecho millones de pagos dentro del canal, para el mundo exterior solo existen dos transacciones en la Blockchain: la de apertura y la de cierre.</p>
-
-            <h3>El Final no tan Feliz: Cierre Forzoso</h3>
-            <p>Si uno de los dos desaparece o no coopera, el otro no queda atrapado. Siempre puede tomar la última versión válida y firmada de su "Plan de Reparto" y publicarla en la Blockchain. Esto fuerza el cierre del canal. Gracias a la penalización de tiempo y las claves de revocación, este proceso es seguro y evita que la otra parte pueda hacer trampa.</p>
+            <h2>5.0 Ciclo de Vida del Canal: Cierre y Finalización</h2>
+            <p>Todo canal de pago tiene un ciclo de vida definido que culmina con su cierre.</p>
+            <h3>5.1 Cierre Cooperativo</h3>
+            <p>Es el escenario óptimo. Ambas partes acuerdan mutuamente cerrar el canal. El proceso implica cesar la adición de nuevos pagos (`shutdown`) y negociar la tarifa de la transacción de cierre final (`closing_signed`). Una vez acordada y firmada por ambos, la transacción se transmite a la Blockchain, distribuyendo los saldos finales. Para un observador externo, solo la transacción de apertura y la de cierre son visibles en la cadena de bloques, independientemente de los millones de transacciones que pudieran haber ocurrido dentro del canal.</p>
+            <h3>5.2 Cierre Forzoso</h3>
+            <p>Si una de las partes no coopera, la otra puede cerrar unilateralmente el canal transmitiendo la última versión válida de su transacción de compromiso. Los mecanismos de penalización (retraso de tiempo y claves de revocación) garantizan que este proceso sea seguro y disuaden el comportamiento malicioso.</p>
         </section>
-
+        
         <section id="cap6">
-            <h2>Capítulo 6: El Futuro ya está Aquí (Canales Invisibles con Taproot)</h2>
-            <p>La tecnología de Bitcoin no se detiene. Una mejora llamada <span class="term">Taproot</span> ha revolucionado cómo pueden funcionar los canales de Lightning, haciéndolos aún más privados y eficientes.</p>
+            <h2>6.0 Evolución del Protocolo: Canales Taproot</h2>
+            <p>La actualización de Bitcoin conocida como <span class="term">Taproot</span> ha permitido una nueva generación de canales Lightning con mejoras significativas en privacidad y eficiencia.</p>
             
-            <h3>Las Nuevas Súper-Herramientas</h3>
-            <ul>
-                <li><strong>Taproot: La Caja Fuerte con Puerta Secreta.</strong> Permite que una transacción compleja (con muchas reglas) parezca una transacción simple y normal. Tiene una "puerta principal" para los casos fáciles y "pasadizos secretos" para los casos complicados (disputas, etc.).</li>
-                <li><strong>MuSig2: La Firma Maestra Conjunta.</strong> Permite que Alicia y Bob combinen sus firmas en una sola. Desde afuera, parece que solo una persona firmó.</li>
-            </ul>
-
-            <h3>Canales Fantasma</h3>
-            <p>Al combinar Taproot y MuSig2, la "caja fuerte" que abre el canal ahora parece tener una sola cerradura. Cuando se cierra de forma cooperativa, se usa una sola firma maestra. ¿El resultado? **Para el mundo exterior, el canal de Lightning es indistinguible de una transacción normal de Bitcoin.** ¡Se convierte en un canal fantasma, completamente invisible! Esto es un salto de gigante para la privacidad.</p>
-
-            <h3>Planes de Reparto más Inteligentes</h3>
-            <p>Dentro del canal, todas las reglas complejas (pagos, castigos, tiempos de espera) se reestructuran como "pasadizos secretos" de Taproot. El camino más directo y simple ("la puerta principal") se reserva para el caso más urgente: el castigo por trampa. Todo lo demás queda oculto, haciendo el sistema más limpio y eficiente.</p>
+            <h3>6.1 Canales Invisibles</h3>
+            <p>Mediante el uso de esquemas de firma como <span class="term">MuSig2</span>, Taproot permite que las transacciones de apertura y cierre cooperativo de un canal sean criptográficamente indistinguibles de una transacción estándar de un solo participante. El canal se vuelve efectivamente invisible o "fantasma" en la Blockchain, un avance fundamental para la privacidad de los usuarios.</p>
+            <h4>Modelo Conceptual: El Contrato con Cláusula Secreta</h4>
+            <blockquote>
+                <p>Taproot permite estructurar una transacción con una "puerta principal" de apariencia simple (el caso cooperativo) y "pasadizos secretos" que contienen las reglas complejas para los casos de disputa. Estos pasadizos solo se revelan si son necesarios, preservando la simplicidad y la privacidad en el caso normal.</p>
+            </blockquote>
+            
+            <h3>6.2 Eficiencia de los Contratos</h3>
+            <p>La estructura interna de las transacciones de compromiso también se optimiza. Las condiciones más urgentes, como la penalización por fraude, se colocan en la ruta de gasto más eficiente (el `key-path` de Taproot), mientras que las condiciones menos comunes se alojan en el `script-path`, resultando en un diseño más limpio y eficiente.</p>
         </section>
 
         <section id="cap7">
-            <h2>Capítulo 7: La Privacidad de tu Billetera (El Detective y el Bibliotecario)</h2>
-            <p>Un último tema importante: ¿cómo sabe tu billetera en el móvil si te ha llegado un pago, sin tener que descargar toda la gigantesca historia de Bitcoin y sin revelarle tu vida a un servidor?</p>
+            <h2>7.0 Consideraciones de Privacidad para Clientes Ligeros</h2>
+            <p>Los clientes ligeros (ej. billeteras móviles) enfrentan el desafío de sincronizarse con la red sin descargar toda la Blockchain. Los métodos iniciales comprometían la privacidad del usuario.</p>
+             <h4>Modelo Conceptual: El Detective y el Bibliotecario</h4>
             <blockquote>
-                <p><strong>Analogía: El Detective y el Bibliotecario.</strong><br>
-                Tu billetera es un detective. La Blockchain es una biblioteca. Un servidor de Bitcoin es el bibliotecario jefe.</p>
+                <p>Un cliente ligero es un detective que necesita información de una biblioteca (la Blockchain) a través de un bibliotecario (un servidor). El método antiguo requería que el detective le diera al bibliotecario su lista de sospechosos, revelando sus intereses.</p>
             </blockquote>
-            
-            <h3>El Método Antiguo y Malo (Filtros de Bloom)</h3>
-            <p>Antes, el detective le daba al bibliotecario una lista de sospechosos ("estoy interesado en estas direcciones"). El bibliotecario buscaba por él. El problema era la privacidad: el bibliotecario aprendía todos los secretos del detective.</p>
-            
-            <h3>El Método Nuevo y Genial (Filtros Compactos de Bloque)</h3>
-            <p>Ahora, el rol se invierte. El bibliotecario crea un **"resumen" súper-comprimido y codificado** de cada nuevo libro (bloque) que llega a la biblioteca. El detective descarga todos los resúmenes (que son muy pequeños) y los revisa en la privacidad de su oficina (en su propio celular) para ver si hay alguna coincidencia. Solo si la hay, le pide el libro completo al bibliotecario.</p>
-            <p>Esto es mucho más privado y eficiente. Para hacer estos resúmenes súper pequeños, se usan trucos de compresión muy ingeniosos, como guardar solo las diferencias entre datos y usar códigos especiales para los números más comunes.</p>
+             <p>La solución moderna son los <span class="term">Filtros Compactos de Bloque</span>. En este modelo, el bibliotecario crea un "resumen" codificado de cada nuevo libro. El detective descarga todos los resúmenes y los comprueba en privado. Este método invierte el flujo de información, preservando la privacidad del usuario y mejorando la eficiencia del servidor.</p>
         </section>
 
         <section id="glosario">
-            <h2 id="glosario">Glosario Completo: De la A a la Z</h2>
+            <h2 id="glosario">8.0 Glosario de Términos</h2>
             <dl class="glossary">
                 <dt>Anchor Outputs (Salidas de Ancla)</dt>
-                <dd>Pequeñas salidas de dinero en un plan de reparto, diseñadas específicamente para poder "anclar" una nueva transacción con una comisión más alta y así acelerar la confirmación si la red está congestionada.</dd>
+                <dd>Pequeñas salidas de dinero en una transacción de compromiso, diseñadas para permitir el pago de comisiones de red a través de la técnica CPFP (Child Pays For Parent) y así acelerar la confirmación de la transacción en caso de congestión.</dd>
 
                 <dt>Anuncio de Canal (Channel Announcement)</dt>
-                <dd>El "formulario público" que los dueños de un canal envían a toda la red para hacer público su canal, permitiendo que otros lo usen para enrutar pagos.</dd>
-
-                <dt>Baile de Negociación</dt>
-                <dd>Nuestra analogía para la serie de mensajes que dos nodos intercambian para abrir un canal o actualizar su estado de forma segura y sin necesidad de confiar el uno en el otro.</dd>
+                <dd>Mensaje de la red Lightning que un par de nodos emite para hacer público su canal de pago, permitiendo que sea utilizado para enrutar pagos de terceros.</dd>
 
                 <dt>Bitcoin</dt>
-                <dd>La primera y más conocida criptomoneda, que funciona sobre una red descentralizada. Su red principal a veces es lenta para pagos pequeños, lo que motivó la creación de la Red Lightning.</dd>
+                <dd>La primera criptomoneda descentralizada, cuya red principal sirve como capa de liquidación final para la Red Lightning.</dd>
 
                 <dt>Blockchain</dt>
-                <dd>El "libro de contabilidad" público y distribuido de Bitcoin. Es una cadena de "bloques", donde cada bloque contiene un lote de transacciones. Es la "autopista principal" sobre la que se construye Lightning.</dd>
-
-                <dt>Caja Fuerte Compartida</dt>
-                <dd>Nuestra analogía para un <strong>canal de pago</strong> de Lightning. Es un fondo de dinero controlado por dos personas que requiere la firma de ambas para ser gastado.</dd>
+                <dd>El registro contable público, distribuido e inmutable donde se registran todas las transacciones de Bitcoin confirmadas.</dd>
 
                 <dt>Canal de Pago (Payment Channel)</dt>
-                <dd>La estructura fundamental de la Red Lightning. Un acuerdo entre dos partes que les permite realizar un número ilimitado de transacciones entre ellas fuera de la Blockchain principal.</dd>
+                <dd>La estructura fundamental de la Red Lightning. Un contrato bipartito en la Blockchain que permite a dos partes realizar transacciones ilimitadas entre sí de forma instantánea y fuera de la cadena principal.</dd>
                 
                 <dt>Clave de Revocación (Revocation Key)</dt>
-                <dd>La "llave de castigo". Es la clave secreta que una parte le da a la otra para invalidar un estado de cuenta antiguo. Si alguien intenta usar un estado revocado, la otra parte puede usar esta llave para quedarse con todo el dinero de ese estado como penalización.</dd>
+                <dd>El componente criptográfico central del mecanismo de penalización. Es una clave secreta que se intercambia para invalidar un estado anterior del canal. Su posesión permite a una parte reclamar todos los fondos de la contraparte si esta intenta transmitir un estado revocado.</dd>
 
                 <dt>CLTV (CheckLockTimeVerify)</dt>
-                <dd>Un tipo de "cronómetro" o bloqueo de tiempo en Bitcoin. Un HTLC usa un CLTV para definir la altura de bloque exacta en la que el dinero puede ser reclamado por el emisor si el pago falla.</dd>
+                <dd>Una instrucción del lenguaje de scripting de Bitcoin que impone un bloqueo de tiempo absoluto a una transacción, impidiendo que sea válida antes de una altura de bloque o tiempo Unix específico.</dd>
 
                 <dt>Cliente Ligero (Light Client)</dt>
-                <dd>Una billetera de Bitcoin o Lightning (generalmente en un móvil) que no descarga toda la Blockchain, sino que depende de servidores para obtener la información que necesita de forma eficiente y privada.</dd>
+                <dd>Una billetera de software que interactúa con la red Bitcoin/Lightning sin necesidad de descargar y validar la totalidad de la Blockchain, dependiendo de nodos completos para obtener información del estado de la red.</dd>
 
                 <dt>Commitment Transaction (Transacción de Compromiso)</dt>
-                <dd>Nuestra analogía es el <strong>"Plan de Reparto"</strong>. Es una transacción firmada pero generalmente no transmitida que representa el estado actual de los saldos dentro de un canal. Cada participante guarda una versión de este plan.</dd>
-
-                <dt>Contrato con Cláusula Secreta</dt>
-                <dd>Nuestra analogía para <strong>Taproot</strong>. Un tipo de transacción que parece simple por fuera ("puerta principal"), pero que puede contener reglas complejas ocultas ("pasadizos secretos") que solo se revelan si es necesario.</dd>
-
+                <dd>Una transacción de Bitcoin firmada que representa el estado de saldos de un canal en un momento dado. Normalmente no se transmite, pero cualquiera de las partes puede hacerlo en cualquier momento para cerrar el canal de forma unilateral (cierre forzoso).</dd>
+                
                 <dt>Diffie-Hellman</dt>
-                <dd>Un método criptográfico que permite a dos partes crear una clave secreta compartida a través de un canal público sin que nadie más pueda descifrarla. Nuestra analogía es "El Secreto de la Pintura".</dd>
+                <dd>Un protocolo de intercambio de claves que permite a dos partes establecer un secreto compartido a través de un canal de comunicación inseguro.</dd>
 
                 <dt>Filtros Compactos de Bloque (BIP158)</dt>
-                <dd>El método moderno y privado que usan los clientes ligeros. El servidor crea un "resumen" de cada bloque, y el cliente lo descarga para revisarlo en privado.</dd>
+                <dd>Un método eficiente y que preserva la privacidad para que los clientes ligeros puedan detectar transacciones relevantes sin revelar sus direcciones a un servidor.</dd>
                 
-                <dt>Firma Maestra Conjunta</dt>
-                <dd>Nuestra analogía para <strong>MuSig2</strong>. Una técnica que permite a varias personas combinar sus firmas en una sola, haciendo que una transacción de grupo parezca una transacción individual.</dd>
-
                 <dt>Hash</dt>
-                <dd>Una "huella digital" criptográfica. Es una función que toma cualquier dato y produce una cadena de texto de longitud fija. Es fácil de crear, pero imposible de revertir. Es el "candado" en un HTLC.</dd>
+                <dd>Una función criptográfica que produce una salida de tamaño fijo (una "huella digital") a partir de una entrada de cualquier tamaño. Es computacionalmente inviable revertir el proceso.</dd>
 
                 <dt>Hop Hints (Pistas de Salto)</dt>
-                <dd>Información que el receptor de un pago incluye en la factura para guiar al emisor a través de canales privados que no están en el mapa público. Nuestra analogía son las "direcciones a una carretera privada".</dd>
+                <dd>Datos de enrutamiento incluidos en una factura de Lightning para guiar un pago a través de canales privados o no anunciados.</dd>
                 
                 <dt>HTLC (Hashed Time-Locked Contract)</dt>
-                <dd>El motor de los pagos multi-salto en Lightning. Nuestra analogía es el <strong>"Paquete con Candado de Contraseña y Cronómetro"</strong>. Es un contrato que libera el dinero si se presenta una contraseña secreta (<span class="term">preimage</span>) o lo devuelve si se acaba el tiempo.</dd>
+                <dd>Un tipo de contrato inteligente condicional que es el pilar del enrutamiento multi-salto en Lightning. Los fondos se liberan al presentar un secreto (el `preimage`) o se devuelven al emisor después de un tiempo de expiración.</dd>
 
                 <dt>Irrevocablemente Comprometido</dt>
-                <dd>Un estado o un HTLC se considera así solo cuando ambas partes han completado el "baile del compromiso" (`commitment_signed` y `revoke_and_ack`), asegurando que ambos tienen ese cambio en su versión oficial más reciente del "plan de reparto".</dd>
+                <dd>Describe un cambio de estado o un HTLC que ha sido confirmado por ambas partes a través del intercambio de `commitment_signed` y `revoke_and_ack`, haciéndolo definitivo dentro del canal.</dd>
 
                 <dt>MuSig2</dt>
                 <dd>Un esquema de firma múltiple avanzado que mejora la privacidad y la eficiencia al combinar múltiples firmas en una sola.</dd>
@@ -361,13 +369,13 @@
                 <dd>Un participante en la Red Lightning. Es un software que está conectado a la red, mantiene canales abiertos y puede enviar, recibir o enrutar pagos.</dd>
 
                 <dt>NUMS Point</dt>
-                <dd>Una "cerradura sin llave". Una clave pública generada de tal manera que nadie conoce la clave privada correspondiente. Se usa en Taproot para deshabilitar la "puerta principal" y forzar el uso de los "pasadizos secretos".</dd>
+                <dd>Una clave pública generada de tal manera que nadie conoce la clave privada correspondiente. Se usa en Taproot para deshabilitar una ruta de gasto y forzar el uso de condiciones predefinidas en el script.</dd>
 
                 <dt>Paquete Cebolla (Onion Packet)</dt>
-                <dd>El formato de mensaje que se usa para dar instrucciones a los intermediarios de una ruta. Está encriptado en capas, como una cebolla. Cada intermediario solo puede "pelar" su capa para leer sus instrucciones y pasar el resto.</dd>
+                <dd>El formato de mensaje encriptado por capas que se usa para transmitir instrucciones de forma segura y privada a los nodos intermediarios en una ruta de pago.</dd>
 
                 <dt>Preimage</dt>
-                <dd>La "contraseña secreta" de un HTLC. Es un dato aleatorio que, al aplicarle un <span class="term">hash</span>, produce el "candado" del HTLC. Revelar el preimage es la prueba de que el pago se ha completado.</dd>
+                <dd>El dato secreto original cuya huella digital (`hash`) se utiliza para bloquear un HTLC. Revelar el preimage es la prueba de pago que permite reclamar los fondos.</dd>
 
                 <dt>Red Lightning</dt>
                 <dd>Una "segunda capa" construida sobre Bitcoin para permitir pagos instantáneos y de bajo costo. Funciona creando una red de canales de pago privados entre los usuarios.</dd>
@@ -376,13 +384,13 @@
                 <dd>El protocolo específico de construcción de "paquetes cebolla" que garantiza la máxima privacidad, asegurando que el paquete tenga un tamaño constante y que la información esté encriptada de forma segura para cada salto.</dd>
                 
                 <dt>Taproot</dt>
-                <dd>Una importante actualización de Bitcoin que mejora la privacidad y la flexibilidad de las transacciones, permitiendo que las transacciones complejas parezcan transacciones simples. Es la base de los canales "fantasma" de Lightning.</dd>
+                <dd>Una importante actualización de Bitcoin que mejora la privacidad y la flexibilidad de las transacciones, permitiendo que las transacciones complejas parezcan transacciones simples.</dd>
                 
                 <dt>to_self_delay</dt>
-                <dd>La "penalización de tiempo". Es un período de espera que un participante debe cumplir si cierra un canal de forma forzosa antes de poder reclamar su propio dinero. Da tiempo a la otra parte para reaccionar en caso de fraude.</dd>
+                <dd>El período de bloqueo de tiempo relativo que un participante debe esperar para reclamar sus propios fondos en un escenario de cierre forzoso. Funciona como una ventana de tiempo para que la contraparte pueda reaccionar ante un posible fraude.</dd>
 
                 <dt>XOR</dt>
-                <dd>Una operación lógica bit a bit usada en Sphinx como una forma simple y eficiente de encriptar y desencriptar datos. Nuestra analogía es la "Máscara Mágica".</dd>
+                <dd>Una operación lógica bit a bit utilizada en el protocolo Sphinx como un método eficiente para el cifrado y descifrado de las capas de la "cebolla".</dd>
             </dl>
         </section>
 
