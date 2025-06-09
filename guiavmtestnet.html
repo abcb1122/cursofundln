@@ -1,195 +1,327 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es-CO">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Guía v3.1: Tu Nodo Lightning en la Nube (Neutrino + RTL)</title>
     <style>
-        body {
-            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-            line-height: 1.7;
-            color: #212529;
-            max-width: 850px;
-            margin: 20px auto;
-            padding: 30px;
-            background-color: #ffffff;
-            border: 1px solid #e0e0e0;
+        /* --- MODO CLARO (POR DEFECTO) --- */
+        :root {
+            --bg-color: #f8f9fa;
+            --text-color: #212529;
+            --container-bg: #ffffff;
+            --border-color: #dee2e6;
+            --heading-color: #212529;
+            --accent-color: #0d6efd;
+            --blockquote-bg: #f1f3f5;
+            --blockquote-border: #0d6efd;
+            --code-bg: #e9ecef;
+            --code-color: #343a40;
+            --subtle-text: #495057;
         }
-        h1, h2, h3 {
-            color: #000000;
-            border-bottom: 1px solid #dee2e6;
-            padding-bottom: 10px;
-            margin-top: 45px;
+
+        body {
+            font-family: Georgia, 'Times New Roman', Times, serif;
+            line-height: 1.7;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 20px;
+            transition: background-color 0.3s, color 0.3s;
+        }
+        .container {
+            max-width: 900px;
+            margin: 20px auto;
+            background-color: var(--container-bg);
+            padding: 40px 60px;
+            border: 1px solid var(--border-color);
+        }
+        h1, h2, h3, h4, .toc h2 {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            font-weight: 600;
+            color: var(--heading-color);
         }
         h1 {
             text-align: center;
-            font-size: 2.8em;
-            margin-bottom: 30px;
-            border-bottom: 3px solid #000000;
+            font-size: 2.6em;
+            font-weight: 700;
+            border-bottom: 2px solid #343a40;
+            margin-bottom: 20px;
+            padding-bottom: 20px;
         }
-        h2 { font-size: 2.2em; }
-        h3 { font-size: 1.6em; border-bottom: none; }
-        code {
-            background-color: #f8f9fa;
-            padding: 3px 7px;
-            border-radius: 5px;
-            font-family: "SF Mono", "Fira Code", "Courier New", Courier, monospace;
-            font-size: 0.95em;
-            border: 1px solid #e9ecef;
-            color: #212529;
-            word-wrap: break-word;
+        .abstract {
+            text-align: justify;
+            font-style: italic;
+            color: var(--subtle-text);
+            margin-bottom: 40px;
+            padding: 10px 20px;
+            background-color: var(--blockquote-bg);
+            border-left: 4px solid var(--blockquote-border);
         }
+        .abstract strong {
+            font-style: normal;
+        }
+        h2 {
+            font-size: 2em;
+            margin-top: 50px;
+            border-bottom: 1px solid #ccc;
+            padding-bottom: 10px;
+        }
+        h3 {
+            font-size: 1.5em;
+            color: #343a40;
+            border-bottom-style: none;
+            margin-top: 30px;
+        }
+        h4 {
+            font-size: 1.1em;
+            font-style: italic;
+            color: var(--subtle-text);
+            margin-bottom: -10px;
+            font-weight: normal;
+        }
+        p, li {
+            font-size: 1.05em;
+            text-align: justify;
+        }
+        blockquote {
+            background-color: var(--blockquote-bg);
+            border: 1px solid var(--border-color);
+            padding: 15px 20px;
+            margin: 25px 0;
+            border-radius: 4px;
+        }
+        code, .term {
+            background-color: var(--code-bg);
+            color: var(--code-color);
+            padding: 2px 5px;
+            border-radius: 4px;
+            font-family: "SFMono-Regular", Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+            font-size: 0.9em;
+        }
+        .glossary {
+            margin-top: 60px;
+            padding-top: 20px;
+            border-top: 2px solid #343a40;
+        }
+        .glossary dt {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            font-weight: 600;
+            color: var(--accent-color);
+            font-size: 1.2em;
+            margin-top: 20px;
+        }
+        .glossary dd {
+            margin-left: 25px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #e9ecef;
+        }
+        a {
+            color: var(--accent-color);
+            text-decoration: none;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+        .toc {
+            background: var(--container-bg);
+            padding: 25px;
+            border-radius: 4px;
+            border: 1px solid var(--border-color);
+            margin-bottom: 50px;
+        }
+        .toc ul {
+            list-style-type: none;
+            padding: 0;
+        }
+        .toc li {
+            margin: 12px 0;
+            text-align: left;
+        }
+         .toc h2 {
+            margin-top: 0;
+            font-size: 1.8em;
+            text-align: center;
+        }
+        /* New styles for pre/code specifically for this document */
         pre {
-            background-color: #212529;
-            color: #f8f9fa; /* Color de texto por defecto para la caja */
+            background-color: #212529; /* Dark background for code blocks */
+            color: #f8f9fa; /* Light text for code blocks */
             padding: 20px;
             border-radius: 8px;
             overflow-x: auto;
             white-space: pre-wrap;
             word-wrap: break-word;
+            border: 1px solid var(--border-color); /* Added border to fit design */
         }
-        /* --- LA CORRECCIÓN ESTÁ AQUÍ --- */
         pre code {
-            background-color: transparent;
-            color: #f8f9fa; /* Forzamos el color claro para el código dentro de <pre> */
+            background-color: transparent; /* No background for inline code within pre */
+            color: #f8f9fa; /* Light text for inline code within pre */
             padding: 0;
             border: none;
-            font-size: 1em; /* Hereda el tamaño de <pre> */
-        }
-        blockquote {
-            border-left: 5px solid #6c757d;
-            padding-left: 20px;
-            margin: 25px 0;
-            font-style: italic;
-            color: #495057;
+            font-size: 1em; /* Inherit size from pre */
         }
         .importante {
-            color: #dc3545;
+            color: #dc3545; /* Red color for important text */
             font-weight: bold;
         }
-        .toc {
-            background: #f8f9fa;
-            border: 1px solid #e9ecef;
-            padding: 20px;
-            border-radius: 8px;
-            margin-bottom: 40px;
-        }
-        .toc ul { padding-left: 20px; list-style-type: none; }
-        .toc ul li { margin-bottom: 10px; }
-        .toc a { text-decoration: none; color: #0d6efd; }
-        .toc a:hover { text-decoration: underline; }
         .externo {
-            background-color: #f8f9fa;
-            border: 1px solid #dee2e6;
+            background-color: var(--blockquote-bg); /* Using blockquote background */
+            border: 1px solid var(--border-color); /* Standard border */
             padding: 20px;
             margin: 25px 0;
             border-radius: 8px;
+        }
+
+
+        /* --- MODO OSCURO (DINÁMICO) --- */
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --bg-color: #121212;
+                --text-color: #E0E0E0;
+                --container-bg: #1E1E1E;
+                --border-color: #373737;
+                --heading-color: #BB86FC;
+                --accent-color: #03DAC6;
+                --blockquote-bg: #2a2a2a;
+                --blockquote-border: #03DAC6;
+                --code-bg: #333;
+                --code-color: #FDFD96;
+                --subtle-text: #a0a0a0;
+            }
+
+            h1 { border-bottom-color: #BB86FC; }
+            h2 { border-color: #373737; }
+            h3 { color: #E0E0E0; }
+            .glossary { border-top-color: #BB86FC; }
+            .glossary dd { border-color: #373737; }
+            a { color: #CF6679; }
+            pre {
+                background-color: var(--code-bg); /* Darker background for code blocks in dark mode */
+                color: var(--code-color); /* Lighter text for code blocks in dark mode */
+                border: 1px solid var(--border-color);
+            }
+            pre code {
+                color: var(--code-color); /* Ensure code inside pre keeps the right color in dark mode */
+            }
+            .importante {
+                color: #FF5A5F; /* Adjusted red for dark mode if needed, original is fine too */
+            }
         }
     </style>
 </head>
 <body>
+    <div class="container">
+        <h1>Guía de Implementación:<br>Tu Nodo Lightning (Neutrino) con UI RTL</h1>
+        
+        <div class="toc">
+            <h2>Índice de Contenidos</h2>
+            <ul>
+                <li><a href="#intro"><strong>1.0 Introducción</strong></a></li>
+                <li><a href="#fase0"><strong>2.0 Prerrequisitos: Configuración de Tu Equipo Local</strong></a></li>
+                <li><a href="#fase1"><strong>3.0 Fase I: Montando la Infraestructura en la Nube (AWS)</strong></a></li>
+                <li><a href="#fase2"><strong>4.0 Fase II: Asegurando y Poniendo a Punto el Servidor</strong></a></li>
+                <li><a href="#fase3"><strong>5.0 Fase III: Instalación del Demonio Lightning (LND)</strong></a></li>
+                <li><a href="#fase4"><strong>6.0 Fase IV: Instalación de la Interfaz de Usuario (Ride The Lightning)</strong></a></li>
+                <li><a href="#fase5"><strong>7.0 Fase V: Arranque, Configuración Final y Verificación</strong></a></li>
+                <li><a href="#conclusion"><strong>8.0 Conclusión</strong></a></li>
+            </ul>
+        </div>
 
-    <h1>Guía de Implementación:<br>Nodo Lightning (Neutrino) con UI RTL</h1>
-    
-    <div class="toc">
-        <h2>Índice</h2>
-        <ul>
-            <li><a href="#intro"><strong>1.0 Introducción</strong></a></li>
-            <li><a href="#fase0"><strong>2.0 Prerrequisitos: Configuración de Entorno Local</strong></a></li>
-            <li><a href="#fase1"><strong>3.0 Fase I: Despliegue de Infraestructura en la Nube (AWS)</strong></a></li>
-            <li><a href="#fase2"><strong>4.0 Fase II: Aseguramiento y Puesta a Punto del Servidor</strong></a></li>
-            <li><a href="#fase3"><strong>5.0 Fase III: Instalación del Demonio Lightning (LND)</strong></a></li>
-            <li><a href="#fase4"><strong>6.0 Fase IV: Instalación de la Interfaz de Usuario (Ride The Lightning)</strong></a></li>
-            <li><a href="#fase5"><strong>7.0 Fase V: Lanzamiento, Configuración Final y Verificación</strong></a></li>
-            <li><a href="#conclusion"><strong>8.0 Conclusión</strong></a></li>
-        </ul>
-    </div>
+        <section id="intro">
+            <h2>1.0 Introducción</h2>
+            <p>Este documento es una guía técnica detallada para montar un nodo de la Red Lightning usando LND en modo Neutrino sobre una Máquina Virtual (VM) en la nube. Está pensada para usuarios con conocimientos técnicos básicos o intermedios.</p>
+            <p>El objetivo es desplegar un sistema que funcione, sea seguro y robusto, incluyendo el nodo LND, una interfaz de usuario web (Ride The Lightning - RTL), y una red privada segura (Tailscale). Todos los componentes se configurarán para arrancar automáticamente y seguir funcionando aunque se reinicie el sistema.</p>
+            <blockquote>
+                <strong>Metodología:</strong> Seguiremos un enfoque metódico de análisis, planeación, ejecución y verificación para cada fase, explicando el porqué técnico de cada paso para que entiendas bien el proceso.
+            </blockquote>
+        </section>
 
-    <h2 id="intro">1.0 Introducción</h2>
-    <p>Este documento constituye una guía técnica detallada para la implementación de un nodo de Lightning Network utilizando LND en modo Neutrino sobre una Máquina Virtual (VM) en la nube. La guía está dirigida a usuarios con un nivel de conocimiento técnico básico o intermedio.</p>
-    <p>El objetivo es desplegar un sistema funcional, seguro y resiliente, que incluye el nodo LND, una interfaz de usuario web (Ride The Lightning - RTL), y una capa de red privada segura (Tailscale). Todos los componentes se configurarán como servicios automáticos que sobreviven a reinicios del sistema.</p>
-    <blockquote>
-        <strong>Metodología:</strong> Se seguirá un enfoque metódico de análisis, planificación, ejecución y verificación para cada fase, explicando la justificación técnica de cada paso para asegurar una comprensión profunda del proceso.
-    </blockquote>
+        <section id="fase0">
+            <h2>2.0 Prerrequisitos: Configuración de Tu Equipo Local</h2>
+            <p>Antes de desplegar en la nube, necesitas preparar el cliente de acceso seguro en tu computador. Usaremos Tailscale, que crea una red privada y segura para todos tus dispositivos.</p>
+            
+            <h3>2.1 Creación de Cuenta y Configuración de Tailscale</h3>
+            <div class="externo">
+                <p><strong>ACCIÓN EXTERNA (Navegador Web y Tu Equipo Local)</strong></p>
+                <ol>
+                    <li><strong>Crea tu Cuenta:</strong> Ve a <code>https://tailscale.com</code> y regístrate para obtener una cuenta gratuita usando un proveedor de identidad que ya tengas (Google, GitHub, etc.).</li>
+                    <li><strong>Instala en tu Equipo:</strong> Descarga e instala el cliente de Tailscale para tu sistema operativo (por ejemplo, desde la Mac App Store para macOS).</li>
+                    <li><strong>Autentica el Cliente:</strong> Inicia la aplicación de Tailscale en tu equipo local e inicia sesión con la misma cuenta que creaste antes. Esto hace que tu computador sea parte de tu red privada segura (tailnet).</li>
+                </ol>
+            </div>
+        </section>
 
-    <h2 id="fase0">2.0 Prerrequisitos: Configuración de Entorno Local</h2>
-    <p>Antes del despliegue en la nube, es necesario preparar el cliente de acceso seguro en su máquina local. Usaremos Tailscale, que crea una red privada y segura para todos sus dispositivos.</p>
-    
-    <h3>2.1 Creación de Cuenta y Configuración de Tailscale</h3>
-    <div class="externo">
-        <p><strong>ACCIÓN EXTERNA (Navegador Web y Máquina Local)</strong></p>
-        <ol>
-            <li><strong>Creación de Cuenta:</strong> Navegue a <code>https://tailscale.com</code> y regístrese para obtener una cuenta gratuita utilizando un proveedor de identidad existente (Google, GitHub, etc.).</li>
-            <li><strong>Instalación en Cliente Local:</strong> Descargue e instale el cliente de Tailscale para su sistema operativo (e.g., desde la Mac App Store para macOS).</li>
-            <li><strong>Autenticación del Cliente:</strong> Inicie la aplicación de Tailscale en su máquina local e inicie sesión con la misma cuenta creada en el paso anterior. Esto establece su computadora como un dispositivo dentro de su red privada segura (tailnet).</li>
-        </ol>
-    </div>
+        <section id="fase1">
+            <h2>3.0 Fase I: Montando la Infraestructura en la Nube (AWS)</h2>
+            <p>Vamos a crear una máquina virtual en Amazon Web Services (AWS) que será el hogar de nuestro nodo.</p>
 
-    <h2 id="fase1">3.0 Fase I: Despliegue de Infraestructura en la Nube (AWS)</h2>
-    <p>Se provisionará una máquina virtual en Amazon Web Services (AWS) que servirá como host para nuestro nodo.</p>
+            <h3>3.1 Creación de Cuenta en AWS</h3>
+            <div class="externo">
+                <p><strong>ACCIÓN EXTERNA (Navegador Web)</strong></p>
+                <p>Si no tienes una, crea una cuenta en la capa gratuita de AWS en <code>https://aws.amazon.com/free/</code>. Necesitarás un método de pago para verificar tu identidad.</p>
+            </div>
 
-    <h3>3.1 Creación de Cuenta en AWS</h3>
-    <div class="externo">
-        <p><strong>ACCIÓN EXTERNA (Navegador Web)</strong></p>
-        <p>Si no posee una, cree una cuenta en la capa gratuita de AWS en <code>https://aws.amazon.com/free/</code>. Se requiere un método de pago para verificación de identidad.</p>
-    </div>
-
-    <h3>3.2 Lanzamiento de Instancia EC2</h3>
-    <div class="externo">
-        <p><strong>ACCIÓN EXTERNA (Consola de AWS)</strong></p>
-        <p>Siga este checklist para configurar y lanzar la instancia:</p>
-        <ul>
-            <li><strong>Nombre:</strong> <code>nodo-rtl-neutrino</code></li>
-            <li><strong>AMI:</strong> Ubuntu (versión LTS elegible para capa gratuita, ej. 24.04).</li>
-            <li><strong>Tipo de Instancia:</strong> <code>t2.micro</code> (elegible para capa gratuita).</li>
-            <li><strong>Key Pair (Llave de Acceso):</strong> Cree una nueva llave, formato <code>.pem</code>. Descárguela y guárdela en una ubicación segura y permanente. <strong class="importante">La pérdida de esta llave implica la pérdida de acceso irrecuperable al servidor.</strong></li>
-            <li><strong>Network Settings:</strong> Permita tráfico SSH (puerto 22) temporalmente desde cualquier IP.</li>
-            <li><strong>Almacenamiento:</strong> Configure <code>20 GiB</code> de almacenamiento de tipo <code>gp3</code>.</li>
-            <li>Finalice y lance la instancia.</li>
-        </ul>
-    </div>
-    
-    <h3>3.3 Conexión SSH Inicial</h3>
-    <p>Obtenga la dirección <code>Public IPv4 address</code> de su instancia desde la consola de AWS.</p>
-    <div class="externo">
-        <p><strong>ACCIÓN EXTERNA (Terminal de su Máquina Local)</strong></p>
-        <p>Asegure los permisos del archivo de la llave y establezca la conexión.</p>
-        <pre><code># Mover la llave a la carpeta segura de SSH
+            <h3>3.2 Lanzamiento de Instancia EC2</h3>
+            <div class="externo">
+                <p><strong>ACCIÓN EXTERNA (Consola de AWS)</strong></p>
+                <p>Sigue esta lista para configurar y lanzar la instancia:</p>
+                <ul>
+                    <li><strong>Nombre:</strong> <code>nodo-rtl-neutrino</code></li>
+                    <li><strong>AMI (Imagen de Máquina de Amazon):</strong> Ubuntu (versión LTS que califique para la capa gratuita, ej. 24.04).</li>
+                    <li><strong>Tipo de Instancia:</strong> <code>t2.micro</code> (elegible para la capa gratuita).</li>
+                    <li><strong>Key Pair (Llave de Acceso):</strong> Crea una llave nueva, en formato <code>.pem</code>. Descárgala y guárdala en un lugar seguro y permanente. <strong class="importante">Si pierdes esta llave, perderás el acceso al servidor de forma irrecuperable.</strong></li>
+                    <li><strong>Network Settings:</strong> Permite temporalmente el tráfico SSH (puerto 22) desde cualquier IP.</li>
+                    <li><strong>Almacenamiento:</strong> Configura <code>20 GiB</code> de almacenamiento de tipo <code>gp3</code>.</li>
+                    <li>Finaliza y lanza la instancia.</li>
+                </ul>
+            </div>
+            
+            <h3>3.3 Conexión SSH Inicial</h3>
+            <p>Obtén la dirección <code>Public IPv4 address</code> de tu instancia desde la consola de AWS.</p>
+            <div class="externo">
+                <p><strong>ACCIÓN EXTERNA (Terminal de Tu Equipo Local)</strong></p>
+                <p>Asegura los permisos del archivo de la llave y establece la conexión.</p>
+                <pre><code># Mover la llave a la carpeta segura de SSH
 mkdir -p ~/.ssh
 mv /ruta/a/su/llave-rtl.pem ~/.ssh/
 
-# Asignar permisos de sólo lectura al propietario
+# Asignar permisos de solo lectura al dueño
 chmod 400 ~/.ssh/llave-rtl.pem
 
-# Conectar al servidor (reemplace TU_IP_PUBLICA)
+# Conectar al servidor (reemplaza TU_IP_PUBLICA por la tuya)
 ssh -i ~/.ssh/llave-rtl.pem ubuntu@TU_IP_PUBLICA</code></pre>
-    </div>
+            </div>
+        </section>
 
-    <h2 id="fase2">4.0 Fase II: Aseguramiento y Puesta a Punto del Servidor</h2>
-    <p>Ya dentro de la terminal de la VM, se procederá a su fortalecimiento y aseguramiento.</p>
+        <section id="fase2">
+            <h2>4.0 Fase II: Asegurando y Poniendo a Punto el Servidor</h2>
+            <p>Una vez dentro de la terminal de la VM, vamos a fortalecerla y asegurarla.</p>
 
-    <h3>4.1 Actualización del Sistema y Creación de Swap</h3>
-    <blockquote><strong>Justificación Técnica:</strong> Las instancias `t2.micro` poseen 1GB de RAM, una cantidad insuficiente para procesos que requieren picos de memoria. Un archivo de swap utiliza el almacenamiento en disco como RAM virtual de emergencia, previniendo fallos por falta de memoria (Out-of-Memory).</blockquote>
-    <p>Este comando único actualizará los paquetes del sistema y creará un archivo swap de 2GB, activándolo y asegurando su persistencia entre reinicios.</p>
-    <pre><code>sudo apt update && sudo apt upgrade -y && sudo fallocate -l 2G /swapfile && sudo chmod 600 /swapfile && sudo mkswap /swapfile && sudo swapon /swapfile && echo '/swapfile none swap sw 0 0' | sudo tee -a /etc/fstab</code></pre>
+            <h3>4.1 Actualización del Sistema y Creación de Swap</h3>
+            <blockquote><strong>Justificación Técnica:</strong> Las instancias `t2.micro` tienen 1GB de RAM, lo cual es poco para procesos que necesitan picos de memoria. Un archivo de swap usa el almacenamiento en disco como RAM virtual de emergencia, evitando que el sistema falle por falta de memoria (Out-of-Memory).</blockquote>
+            <p>Este comando único actualizará los paquetes del sistema y creará un archivo swap de 2GB, activándolo y asegurando que funcione después de cada reinicio.</p>
+            <pre><code>sudo apt update && sudo apt upgrade -y && sudo fallocate -l 2G /swapfile && sudo chmod 600 /swapfile && sudo mkswap /swapfile && sudo swapon /swapfile && echo '/swapfile none swap sw 0 0' | sudo tee -a /etc/fstab</code></pre>
 
-    <h3>4.2 Integración a la Red Privada y Aseguramiento del Firewall</h3>
-    <p>Se instalará Tailscale en la VM para unirla a la red privada y posteriormente se cerrará el acceso público.</p>
-    <pre><code># Instalar y conectar Tailscale
+            <h3>4.2 Integración a la Red Privada y Aseguramiento del Firewall</h3>
+            <p>Instalaremos Tailscale en la VM para unirla a tu red privada y luego cerraremos el acceso público.</p>
+            <pre><code># Instalar y conectar Tailscale
 curl -fsSL https://tailscale.com/install.sh | sh && sudo tailscale up</code></pre>
-    <p>Autorice la nueva máquina a través del enlace proporcionado. Luego, obtenga y anote la dirección IP de su VM en la red Tailscale.</p>
-    <pre><code>tailscale ip -4</code></pre>
-    <div class="externo">
-        <p><strong>ACCIÓN EXTERNA (Consola de AWS)</strong></p>
-        <p>Navegue a los `Security Groups` de su instancia y elimine la regla de entrada para el puerto 22 (`SSH`) con origen `0.0.0.0/0`. <strong class="importante">Su conexión SSH actual será terminada.</strong> Para volver a acceder, debe usar la IP de Tailscale que acaba de anotar. </p>
-    </div>
+            <p>Autoriza la nueva máquina a través del enlace que te proporcionará. Luego, obtén y anota la dirección IP de tu VM en la red Tailscale.</p>
+            <pre><code>tailscale ip -4</code></pre>
+            <div class="externo">
+                <p><strong>ACCIÓN EXTERNA (Consola de AWS)</strong></p>
+                <p>Ve a los `Security Groups` de tu instancia y elimina la regla de entrada para el puerto 22 (`SSH`) con origen `0.0.0.0/0`. <strong class="importante">Tu conexión SSH actual se cerrará.</strong> Para volver a acceder, debes usar la IP de Tailscale que acabas de anotar. </p>
+            </div>
+        </section>
 
-    <h2 id="fase3">5.0 Fase III: Instalación del Demonio Lightning (LND)</h2>
-    <p>Esta arquitectura solo requiere LND en la VM, operando en modo Neutrino.</p>
+        <section id="fase3">
+            <h2>5.0 Fase III: Instalación del Demonio Lightning (LND)</h2>
+            <p>Para esta arquitectura, solo necesitamos LND en la VM, funcionando en modo Neutrino.</p>
 
-    <h3>5.1 Instalación del Binario de LND</h3>
-    <p>Se instalará una versión estable de LND directamente desde los binarios oficiales.</p>
-    <pre><code># Se recomienda usar la versión estable más reciente (no rc o alpha)
+            <h3>5.1 Instalación del Binario de LND</h3>
+            <p>Instalaremos una versión estable de LND directamente desde sus binarios oficiales.</p>
+            <pre><code># Se recomienda usar la versión estable más reciente (no rc o alpha)
 LND_VERSION=0.19.0-beta && \
 wget https://github.com/lightningnetwork/lnd/releases/download/v${LND_VERSION}/lnd-linux-amd64-v${LND_VERSION}.tar.gz && \
 wget https://github.com/lightningnetwork/lnd/releases/download/v${LND_VERSION}/manifest-v${LND_VERSION}.txt && \
@@ -197,14 +329,14 @@ grep "lnd-linux-amd64-v${LND_VERSION}.tar.gz" manifest-v${LND_VERSION}.txt | sha
 tar -xvf lnd-linux-amd64-v${LND_VERSION}.tar.gz && \
 sudo install -m 0755 -o root -g root -t /usr/local/bin lnd-linux-amd64-v${LND_VERSION}/* && \
 rm -rf lnd-linux-amd64-v${LND_VERSION}*</code></pre>
-    <p>Verifique la salida <code>...: OK</code> para confirmar la integridad del archivo.</p>
-    
-    <h3>5.2 Configuración y Automatización del Servicio LND</h3>
-    <p>Se creará el archivo de configuración y el servicio `systemd`.</p>
-    <pre><code>mkdir ~/.lnd
+            <p>Verifica que la salida sea <code>...: OK</code> para confirmar que el archivo está completo y sin errores.</p>
+            
+            <h3>5.2 Configuración y Automatización del Servicio LND</h3>
+            <p>Crearemos el archivo de configuración y el servicio `systemd`.</p>
+            <pre><code>mkdir ~/.lnd
 nano ~/.lnd/lnd.conf</code></pre>
-    <p>Contenido para `lnd.conf`:</p>
-    <pre><code>[Application Options]
+            <p>Contenido para `lnd.conf`:</p>
+            <pre><code>[Application Options]
 listen=0.0.0.0:9735
 rpclisten=0.0.0.0:10009
 
@@ -214,16 +346,16 @@ bitcoin.testnet=true
 bitcoin.node=neutrino
 
 [Neutrino]
-# Lista de peers de confianza para sincronización Neutrino en Testnet
+# Lista de pares de confianza para sincronización Neutrino en Testnet
 neutrino.connect=faucet.lightning.community
 neutrino.connect=testnet1.nodes.lightning.engineering
 neutrino.connect=testnet.lnolymp.us
 neutrino.connect=testnet.blixtwallet.com
 </code></pre>
-    <p>Ahora, cree el archivo de servicio `systemd` para automatizar LND.</p>
-    <pre><code>sudo nano /etc/systemd/system/lnd.service</code></pre>
-    <p>Contenido para `lnd.service`:</p>
-    <pre><code>[Unit]
+            <p>Ahora, crea el archivo de servicio `systemd` para que LND inicie automáticamente.</p>
+            <pre><code>sudo nano /etc/systemd/system/lnd.service</code></pre>
+            <p>Contenido para `lnd.service`:</p>
+            <pre><code>[Unit]
 Description=LND Lightning Network Daemon (Neutrino Mode)
 Wants=tailscaled.service
 After=tailscaled.service
@@ -237,40 +369,44 @@ RestartSec=60
 
 [Install]
 WantedBy=multi-user.target</code></pre>
-    <p>Finalmente, active y arranque el servicio.</p>
-    <pre><code>sudo systemctl daemon-reload && sudo systemctl enable lnd.service && sudo systemctl start lnd.service</code></pre>
+            <p>Finalmente, activa e inicia el servicio.</p>
+            <pre><code>sudo systemctl daemon-reload && sudo systemctl enable lnd.service && sudo systemctl start lnd.service</code></pre>
+        </section>
 
-    <h2 id="fase4">6.0 Fase IV: Instalación de la Interfaz de Usuario (Ride The Lightning)</h2>
-    
-    <h3>6.1 Instalación de Prerrequisitos (Node.js y PM2)</h3>
-    <p>RTL requiere un entorno de ejecución de JavaScript (Node.js) y un gestor de procesos (PM2) para funcionar de forma robusta.</p>
-    <pre><code># Instalar nvm (gestor de versiones de Node), Node.js (versión LTS) y PM2
+        <section id="fase4">
+            <h2>6.0 Fase IV: Instalación de la Interfaz de Usuario (Ride The Lightning)</h2>
+            
+            <h3>6.1 Instalación de Prerrequisitos (Node.js y PM2)</h3>
+            <p>RTL necesita un entorno de ejecución de JavaScript (Node.js) y un gestor de procesos (PM2) para funcionar de forma robusta.</p>
+            <pre><code># Instalar nvm (gestor de versiones de Node), Node.js (versión LTS) y PM2
 curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash
 export NVM_DIR="$HOME/.nvm"
 [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
 nvm install --lts
 npm install -g pm2</code></pre>
-    
-    <h3>6.2 Descarga e Instalación de RTL</h3>
-    <p>Se clonará el repositorio oficial de RTL y se instalarán sus dependencias.</p>
-    <pre><code># Descargar el código fuente de RTL
+            
+            <h3>6.2 Descarga e Instalación de RTL</h3>
+            <p>Clonaremos el repositorio oficial de RTL e instalaremos sus dependencias.</p>
+            <pre><code># Descargar el código fuente de RTL
 git clone https://github.com/Ride-The-Lightning/RTL.git
 
-# Ingresar a la carpeta del proyecto
+# Entrar a la carpeta del proyecto
 cd RTL
 
 # Instalar las dependencias de Node.js (se usa --legacy-peer-deps para resolver conflictos)
 npm install --legacy-peer-deps</code></pre>
+        </section>
 
-    <h2 id="fase5">7.0 Fase V: Lanzamiento, Configuración Final y Verificación</h2>
-    
-    <h3>7.1 Configuración de RTL</h3>
-    <p>Se creará el archivo `RTL-Config.json` a partir del archivo de ejemplo y se editará para apuntar a nuestro nodo LND.</p>
-    <pre><code># Asegurarse de estar en la carpeta ~/RTL
+        <section id="fase5">
+            <h2>7.0 Fase V: Arranque, Configuración Final y Verificación</h2>
+            
+            <h3>7.1 Configuración de RTL</h3>
+            <p>Crearemos el archivo `RTL-Config.json` a partir del archivo de ejemplo y lo editaremos para que apunte a nuestro nodo LND.</p>
+            <pre><code># Asegúrate de estar en la carpeta ~/RTL
 cp Sample-RTL-Config.json RTL-Config.json
 nano RTL-Config.json</code></pre>
-    <p>Reemplace el contenido del archivo con la siguiente plantilla, estableciendo una contraseña segura en `multiPass`.</p>
-    <pre><code>{
+            <p>Reemplaza el contenido del archivo con la siguiente plantilla, estableciendo una contraseña segura en `multiPass`.</p>
+            <pre><code>{
   "multiPass": "tu-contraseña-super-segura",
   "port": "3000",
   "defaultNodeIndex": 1,
@@ -292,16 +428,16 @@ nano RTL-Config.json</code></pre>
     }
   ]
 }</code></pre>
-    
-    <h3>7.2 Creación de la Cartera LND</h3>
-    <blockquote><strong>Justificación Técnica:</strong> RTL requiere que los archivos de autenticación (`admin.macaroon`) y seguridad (`tls.cert`) existan para poder conectarse a LND. Estos archivos solo se generan después de que la cartera de LND es creada por primera vez.</blockquote>
-    <p>Ejecute el comando para crear la cartera de su nodo de Testnet.</p>
-    <pre><code>lncli --network=testnet create</code></pre>
-    <p>Siga el proceso interactivo: establezca una contraseña, responda `no` a usar una semilla existente y, muy importante, <strong class="importante">anote y guarde de forma segura las 24 palabras de la semilla que se generarán.</strong></p>
-    
-    <h3>7.3 Lanzamiento y Automatización de RTL</h3>
-    <p>Inicie RTL con el gestor de procesos PM2 y configure su auto-arranque.</p>
-    <pre><code># Asegúrese de estar en la carpeta ~/RTL
+            
+            <h3>7.2 Creación de la Cartera LND</h3>
+            <blockquote><strong>Justificación Técnica:</strong> RTL necesita que los archivos de autenticación (`admin.macaroon`) y seguridad (`tls.cert`) existan para poder conectarse a LND. Estos archivos solo se generan después de que la cartera de LND se crea por primera vez.</blockquote>
+            <p>Ejecuta el comando para crear la cartera de tu nodo de Testnet.</p>
+            <pre><code>lncli --network=testnet create</code></pre>
+            <p>Sigue el proceso interactivo: establece una contraseña, responde `no` a usar una semilla existente y, muy importante, <strong class="importante">anota y guarda de forma segura las 24 palabras de la semilla que se generarán.</strong></p>
+            
+            <h3>7.3 Lanzamiento y Automatización de RTL</h3>
+            <p>Inicia RTL con el gestor de procesos PM2 y configura su auto-arranque.</p>
+            <pre><code># Asegúrate de estar en la carpeta ~/RTL
 cd ~/RTL
 
 # Iniciar RTL con PM2
@@ -312,27 +448,30 @@ pm2 save
 
 # Generar y ejecutar el comando de auto-arranque para PM2
 pm2 startup
-# (Recuerde copiar y ejecutar el comando 'sudo env...' que se mostrará)
+# (Recuerda copiar y ejecutar el comando 'sudo env...' que se mostrará)
 </code></pre>
 
-    <h3>7.4 Prueba de Fuego Final y Acceso</h3>
-    <p>Para verificar la resiliencia del sistema, reinicie la máquina virtual.</p>
-    <pre><code>sudo reboot</code></pre>
-    <p>Espere 2-3 minutos, reconéctese vía Tailscale y verifique el estado de los servicios:</p>
-    <pre><code>sudo systemctl status lnd
+            <h3>7.4 Prueba Final y Acceso</h3>
+            <p>Para verificar que el sistema es robusto, reinicia la máquina virtual.</p>
+            <pre><code>sudo reboot</code></pre>
+            <p>Espera 2-3 minutos, reconéctate vía Tailscale y verifica el estado de los servicios:</p>
+            <pre><code>sudo systemctl status lnd
 pm2 status</code></pre>
-    <p>Ambos servicios deben mostrar un estado `active (running)` u `online`.</p>
-    
-    <div class="externo">
-        <p><strong>ACCIÓN EXTERNA (Navegador Web)</strong></p>
-        <p>Finalmente, acceda a su panel de control de RTL a través de la dirección de Tailscale de la VM en el puerto 3000:</p>
-        <p><strong><code>http://TU_IP_DE_TAILSCALE:3000</code></strong></p>
-        <p>Inicie sesión con la contraseña (`multiPass`) que estableció en el archivo `RTL-Config.json`.</p>
+            <p>Ambos servicios deben mostrar un estado `active (running)` o `online`.</p>
+            
+            <div class="externo">
+                <p><strong>ACCIÓN EXTERNA (Navegador Web)</strong></p>
+                <p>Finalmente, accede a tu panel de control de RTL a través de la dirección de Tailscale de la VM en el puerto 3000:</p>
+                <p><strong><code>http://TU_IP_DE_TAILSCALE:3000</code></strong></p>
+                <p>Inicia sesión con la contraseña (`multiPass`) que estableciste en el archivo `RTL-Config.json`.</p>
+            </div>
+        </section>
+        
+        <section id="conclusion">
+            <h2>8.0 Conclusión</h2>
+            <p>¡Felicitaciones! Has desplegado exitosamente un nodo de la Red Lightning que es ligero, seguro, robusto y tiene una interfaz de gestión profesional. Has completado un ciclo de aprendizaje que abarca desde la creación de infraestructura en la nube hasta la depuración de software y la configuración de servicios de nivel de producción.</p>
+            <p>El sistema actual es una base sólida sobre la cual puedes seguir explorando el ecosistema Lightning: fondear tu cartera, conectarte a otros nodos y abrir tus primeros canales.</p>
+        </section>
     </div>
-    
-    <h2 id="conclusion">8.0 Conclusión</h2>
-    <p>¡Felicitaciones! Ha desplegado exitosamente un nodo de Lightning Network ligero, seguro, resiliente y con una interfaz de gestión profesional. Ha completado un ciclo de aprendizaje que abarca desde la provisión de infraestructura en la nube hasta la depuración de software y la configuración de servicios de nivel de producción.</p>
-    <p>El sistema actual es una base sólida sobre la cual puede continuar su exploración del ecosistema Lightning: fondear su cartera, conectarse a peers y abrir sus primeros canales.</p>
-
 </body>
 </html>
