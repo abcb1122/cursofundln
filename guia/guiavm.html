@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Guía Definitiva: Tu Primer Nodo Lightning en la Nube</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f9f9f9;
+        }
+        h1, h2, h3 {
+            color: #d97d0d; /* Naranja Bitcoin */
+            border-bottom: 2px solid #ddd;
+            padding-bottom: 5px;
+        }
+        h1 {
+            text-align: center;
+            border-bottom: 4px solid #d97d0d;
+        }
+        code {
+            background-color: #eee;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: "Courier New", Courier, monospace;
+            font-size: 0.95em;
+            word-wrap: break-word;
+        }
+        pre {
+            background-color: #2d2d2d;
+            color: #f8f8f2;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+        pre code {
+            background-color: transparent;
+            padding: 0;
+        }
+        blockquote {
+            border-left: 4px solid #d97d0d;
+            padding-left: 15px;
+            margin: 20px 0;
+            font-style: italic;
+            color: #555;
+            background-color: #fff8e1;
+        }
+        .emoji {
+            font-size: 1.2em;
+            vertical-align: middle;
+        }
+        .importante {
+            color: #c0392b;
+            font-weight: bold;
+        }
+        .leccion {
+            background-color: #e8f4fd;
+            border: 1px solid #a1c9e8;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+
+    <h1><span class="emoji">🚀</span> Guía Definitiva: Tu Primer Nodo Lightning en la Nube <span class="emoji">⚡️</span></h1>
+    <p><em>Una guía de principiante a profesional, forjada en la batalla contra los errores y la curiosidad. Por Ariel y su copiloto de IA.</em></p>
+
+    <h2>Introducción: ¿Qué Vamos a Construir?</h2>
+    <p>Hola, futuro operador de nodo. Si tienes 15 años o más y no sabes nada de programación pero tienes una curiosidad gigante, esta guía es para ti. Juntos, vamos a montar desde cero un sistema robusto, seguro y profesional en la nube.</p>
+    <p>Al final de esta guía, tendrás:</p>
+    <ul>
+        <li>Una <strong>máquina virtual (VM)</strong> propia en los servidores de Amazon (AWS).</li>
+        <li>Un <strong>nodo de Bitcoin Core (`bitcoind`)</strong> 100% sincronizado en la red de pruebas <strong>Signet</strong>.</li>
+        <li>Un <strong>nodo de Lightning Network (LND)</strong> funcional y listo para operar.</li>
+        <li>Un <strong>túnel privado y seguro (Tailscale)</strong> para acceder a tu nodo desde cualquier lugar.</li>
+        <li>Ambos nodos configurados como <strong>servicios automáticos y resilientes</strong> que arrancan solos.</li>
+        <li>Y lo más importante: **satoshis de prueba en ambas carteras** para demostrar que todo funciona.</li>
+    </ul>
+    <blockquote>
+        <span class="emoji">🧠</span> <strong>Nuestra Filosofía:</strong> Medir dos veces, cortar una. No correremos, aprenderemos. Entenderemos el "porqué" de cada paso y construiremos algo de lo que estar orgullosos.
+    </blockquote>
+
+    <h2>Fase 1: Construyendo Nuestro Servidor en la Nube (AWS)</h2>
+    <p>Primero, necesitamos nuestro "terreno" en la nube. Usaremos la capa gratuita de Amazon Web Services (AWS).</p>
+
+    <h3>Paso 1: Crear una cuenta en AWS</h3>
+    <p>Ve a <a href="https://aws.amazon.com/free/" target="_blank">https://aws.amazon.com/free/</a> y crea una cuenta gratuita. Necesitarás una tarjeta de crédito/débito para la verificación (no te cobrarán si seguimos los pasos de la capa gratuita).</p>
+
+    <h3>Paso 2: Lanzar la Máquina Virtual (Instancia EC2)</h3>
+    <p>Una vez dentro de la consola de AWS, sigue esta lista de chequeo para crear tu máquina:</p>
+    <ol>
+        <li>Haz clic en <strong>"Launch instance"</strong>.</li>
+        <li><strong>Nombre:</strong> Ponle un nombre, como <code>nodo-lightning-v2</code>.</li>
+        <li><strong>Sistema Operativo (AMI):</strong> Elige <strong>Ubuntu</strong> (la versión que diga "Free tier eligible", por ejemplo Ubuntu 24.04).</li>
+        <li><strong>Arquitectura:</strong> Deja la opción <strong>64-bit (x86)</strong>.</li>
+        <li><strong>Tipo de Instancia:</strong> Elige <strong><code>t2.micro</code></strong> (también debe decir "Free tier eligible").</li>
+        <li><strong>Llave de Acceso (Key Pair):</strong> ¡Paso crítico! Haz clic en <strong>"Create new key pair"</strong>. Dale un nombre (ej: <code>llave-nodo-v2</code>), asegúrate de que el formato sea <code>.pem</code> y guarda el archivo que se descarga en un lugar súper seguro de tu computadora. <strong class="importante">Si pierdes esta llave, pierdes el acceso a tu servidor.</strong></li>
+        <li><strong>Configuración de Red:</strong> Marca la casilla <strong>"Allow SSH traffic from"</strong>.</li>
+        <li><strong>Almacenamiento:</strong> Aumenta el tamaño a <strong>50 GiB</strong>. Esto nos da espacio de sobra para el futuro.</li>
+        <li>Haz clic en <strong>"Launch instance"</strong>.</li>
+    </ol>
+    <p>Espera unos minutos hasta que los "Status checks" de tu instancia muestren 2/2 comprobaciones superadas (los dos checks en verde).</p>
+    
+    <h3>Paso 3: Primera Conexión (SSH)</h3>
+    <p>Con la máquina lista, necesitamos entrar. Copia la <strong>"Public IPv4 address"</strong> de tu instancia desde la consola de AWS.</p>
+    <p>En tu Mac/Linux, abre la <strong>Terminal</strong>. Primero, moveremos la llave que descargaste a un lugar seguro y le daremos los permisos correctos. Reemplaza <code>/ruta/a/tu/llave-nodo-v2.pem</code> con la ruta real donde guardaste el archivo.</p>
+    <pre><code># Mover la llave a la carpeta segura de SSH (creándola si no existe)
+mkdir -p ~/.ssh
+mv /ruta/a/tu/llave-nodo-v2.pem ~/.ssh/
+
+# Darle permisos de "súper secreto" (solo tú puedes leerla)
+chmod 400 ~/.ssh/llave-nodo-v2.pem</code></pre>
+    <p>Ahora, conéctate usando la IP pública y el nombre de tu llave:</p>
+    <pre><code># Reemplaza la IP y el nombre de la llave si es diferente
+ssh -i ~/.ssh/llave-nodo-v2.pem ubuntu@TU_IP_PUBLICA</code></pre>
+    <p>La primera vez te preguntará si confías en el servidor. Escribe <code>yes</code> y presiona Enter. ¡Felicitaciones, estás dentro de tu servidor!</p>
+
+    <h2>Fase 2: "Blindando" el Servidor (Puesta a Punto Profesional)</h2>
+    <p>Antes de instalar nada, haremos nuestro servidor robusto y seguro.</p>
+
+    <h3>Paso 1: Actualizar el Sistema</h3>
+    <p>Lo primero en un servidor nuevo es actualizar todo su software.</p>
+    <pre><code>sudo apt update && sudo apt upgrade -y</code></pre>
+
+    <h3>Paso 2: Crear "Memoria de Emergencia" (Swap File)</h3>
+    <div class="leccion">
+        <span class="emoji">💡</span> <strong>Lección Aprendida:</strong> Las máquinas pequeñas (como la nuestra `t2.micro` con 1GB de RAM) pueden colapsar con tareas pesadas. Un "archivo de swap" usa el disco duro como RAM de emergencia para evitarlo.
+    </div>
+    <p>Crea y activa un archivo swap de 2GB con este súper-comando:</p>
+    <pre><code>sudo fallocate -l 2G /swapfile && sudo chmod 600 /swapfile && sudo mkswap /swapfile && sudo swapon /swapfile && echo '/swapfile none swap sw 0 0' | sudo tee -a /etc/fstab</code></pre>
+    <p>Verifica que funciona con <code>free -h</code>. Deberías ver una fila "Swap" con "2.0G".</p>
+
+    <h3>Paso 3: Instalar el "Pasadizo Secreto" (Tailscale)</h3>
+    <p>Para no exponer nuestro servidor a todo internet, crearemos una red privada con Tailscale.</p>
+    <pre><code># Instalar la herramienta 'curl' y luego Tailscale
+sudo apt install curl -y && curl -fsSL https://tailscale.com/install.sh | sh
+
+# Encender Tailscale y conectar a tu cuenta
+sudo tailscale up</code></pre>
+    <p>Este último comando te dará un enlace. Cópialo y pégalo en tu navegador para autorizar la nueva máquina en tu red de Tailscale.</p>
+
+    <h3>Paso 4: Sellar la Puerta Pública</h3>
+    <p>Una vez que Tailscale esté funcionando, volvemos a la <strong>consola de AWS</strong>. Ve a los detalles de tu instancia -> Pestaña "Security" -> Clic en el "Security Group" -> "Edit inbound rules" -> <strong>Borra</strong> la regla que permite tráfico en el puerto 22 desde `0.0.0.0/0` -> "Save rules".</p>
+    <p class="importante"><span class="emoji">⚠️</span> ¡A partir de ahora, tu servidor es invisible! Solo podrás conectarte por SSH usando la IP de Tailscale de tu VM (la puedes ver con `tailscale ip -4`).</p>
+
+    <h2>Fase 3: Instalando los Motores (Bitcoin y LND)</h2>
+    <p>Con el servidor seguro y robusto, es hora de instalar nuestro software.</p>
+
+    <h3>Paso 1: Instalar Bitcoin Core (Método Binario)</h3>
+    <div class="leccion">
+        <span class="emoji">💡</span> <strong>Lección Aprendida:</strong> Descargar el programa ya "armado" (el binario) es más rápido y seguro para nuestra máquina que intentar compilarlo.
+    </div>
+    <p>Averigüemos la última versión estable con nuestro truco de detective:</p>
+    <pre><code>git ls-remote --tags https://github.com/bitcoin/bitcoin.git | grep -o 'v[0-9]\+.[0-9]\+' | sort -V | tail -n 1</code></pre>
+    <p>Usa la versión que te dé como resultado en el siguiente súper-comando (aquí usamos 29.0 como ejemplo):</p>
+    <pre><code># Reemplaza 29.0 si encontraste una versión más nueva
+BITCOIN_VERSION=29.0 && \
+wget https://bitcoincore.org/bin/bitcoin-core-${BITCOIN_VERSION}/bitcoin-${BITCOIN_VERSION}-x86_64-linux-gnu.tar.gz && \
+wget https://bitcoincore.org/bin/bitcoin-core-${BITCOIN_VERSION}/SHA256SUMS && \
+grep "bitcoin-${BITCOIN_VERSION}-x86_64-linux-gnu.tar.gz" SHA256SUMS | sha256sum -c - && \
+tar -xvf bitcoin-${BITCOIN_VERSION}-x86_64-linux-gnu.tar.gz && \
+sudo install -m 0755 -o root -g root -t /usr/local/bin bitcoin-${BITCOIN_VERSION}/bin/* && \
+rm -rf bitcoin* SHA256SUMS</code></pre>
+    <p>Busca la línea de respuesta <code>...: OK</code> para confirmar que la descarga fue segura.</p>
+
+    <h3>Paso 2: Configurar y Automatizar Bitcoin Core</h3>
+    <p>Le daremos sus instrucciones y lo convertiremos en un servicio que arranque solo.</p>
+    <pre><code># Crear la carpeta de configuración
+mkdir ~/.bitcoin
+
+# Crear y editar el archivo de configuración
+nano ~/.bitcoin/bitcoin.conf</code></pre>
+    <p>Pega esto dentro de `nano`:</p>
+    <pre><code># Usar la red de pruebas Signet
+signet=1
+server=1
+txindex=1
+
+# Credenciales para que LND pueda hablarle
+rpcuser=usuario_signet
+rpcpassword=contraseña_secreta_para_signet_54321
+
+# Canales de notificación
+zmqpubrawblock=tcp://127.0.0.1:28332
+zmqpubrawtx=tcp://127.0.0.1:28333</code></pre>
+    <p>Guarda y sal. Ahora, crea el archivo de servicio para que sea automático:</p>
+    <pre><code>sudo nano /etc/systemd/system/bitcoind.service</code></pre>
+    <p>Pega esto dentro:</p>
+    <pre><code>[Unit]
+Description=Bitcoin daemon
+After=network.target
+
+[Service]
+ExecStart=/usr/local/bin/bitcoind -daemon -conf=/home/ubuntu/.bitcoin/bitcoin.conf -pid=/home/ubuntu/.bitcoin/bitcoind.pid
+User=ubuntu
+Group=ubuntu
+Type=forking
+PIDFile=/home/ubuntu/.bitcoin/bitcoind.pid
+Restart=on-failure
+RestartSec=20
+
+[Install]
+WantedBy=multi-user.target</code></pre>
+    <p>Guarda y sal. Finalmente, activa y arranca el servicio:</p>
+    <pre><code>sudo systemctl daemon-reload
+sudo systemctl enable bitcoind.service
+sudo systemctl start bitcoind</code></pre>
+    <p>Verifica que está corriendo con <code>sudo systemctl status bitcoind</code>. ¡Busca el punto verde ●!</p>
+
+    <h3>Paso 3: Instalar LND (Método Binario)</h3>
+    <p>Haremos lo mismo para LND. Buscamos la última versión estable (no `rc` o `alpha` si es posible):</p>
+    <pre><code>git ls-remote --tags https://github.com/lightningnetwork/lnd.git | grep -o 'v[0-9]\+.[0-9]\+.[0-9]\+-beta' | sort -V | tail -n 1
+</code></pre>
+    <p>Usa esa versión en el siguiente comando (aquí usamos `v0.19.0-beta` como ejemplo):</p>
+    <pre><code># Reemplaza la versión si encontraste una más nueva y estable
+LND_VERSION=0.19.0-beta && \
+wget https://github.com/lightningnetwork/lnd/releases/download/v${LND_VERSION}/lnd-linux-amd64-v${LND_VERSION}.tar.gz && \
+wget https://github.com/lightningnetwork/lnd/releases/download/v${LND_VERSION}/manifest-v${LND_VERSION}.txt && \
+grep "lnd-linux-amd64-v${LND_VERSION}.tar.gz" manifest-v${LND_VERSION}.txt | sha256sum -c - && \
+tar -xvf lnd-linux-amd64-v${LND_VERSION}.tar.gz && \
+sudo install -m 0755 -o root -g root -t /usr/local/bin lnd-linux-amd64-v${LND_VERSION}/* && \
+rm -rf lnd-linux-amd64-v${LND_VERSION}.tar.gz manifest-v${LND_VERSION}.txt lnd-linux-amd64-v${LND_VERSION}
+</code></pre>
+    
+    <h3>Paso 4: Configurar y Automatizar LND</h3>
+    <p>Exactamente el mismo proceso que con `bitcoind`.</p>
+    <pre><code># Crear la carpeta de configuración
+mkdir ~/.lnd
+
+# Crear y editar el archivo de configuración
+nano ~/.lnd/lnd.conf</code></pre>
+    <p>Pega esto dentro de `nano`. Fíjate que las credenciales son una copia exacta de las de `bitcoin.conf`.</p>
+    <pre><code>[Application Options]
+listen=0.0.0.0:9735
+rpclisten=0.0.0.0:10009
+
+[Bitcoin]
+bitcoin.signet=1
+bitcoin.node=bitcoind
+
+[bitcoind]
+bitcoind.rpcuser=usuario_signet
+bitcoind.rpcpass=contraseña_secreta_para_signet_54321
+bitcoind.zmqpubrawblock=tcp://127.0.0.1:28332
+bitcoind.zmqpubrawtx=tcp://127.0.0.1:28333</code></pre>
+    <p>Guarda y sal. Ahora, crea su archivo de servicio:</p>
+    <pre><code>sudo nano /etc/systemd/system/lnd.service</code></pre>
+    <p>Pega esto. Fíjate cómo le decimos que espere a que `bitcoind` esté listo (`After=bitcoind.service`).</p>
+    <pre><code>[Unit]
+Description=LND Lightning Network Daemon
+Wants=bitcoind.service
+After=bitcoind.service
+
+[Service]
+ExecStart=/usr/local/bin/lnd
+User=ubuntu
+Group=ubuntu
+Restart=on-failure
+RestartSec=30
+TimeoutSec=240
+
+[Install]
+WantedBy=multi-user.target</code></pre>
+    <p>Guarda y sal. Activa y arranca el servicio:</p>
+    <pre><code>sudo systemctl daemon-reload
+sudo systemctl enable lnd.service
+sudo systemctl start lnd.service</code></pre>
+    <p>Verifica que está corriendo con <code>sudo systemctl status lnd</code>.</p>
+
+    <h2>Fase 4: ¡El Tesoro! Creación y Fondeo de Carteras</h2>
+    <p>Esta es la recompensa a todo nuestro trabajo.</p>
+
+    <h3>Paso 1: ¡Paciencia! Esperar la Sincronización de Bitcoin</h3>
+    <p>Antes de hacer nada con LND, `bitcoind` debe estar 100% sincronizado. Puedes verificar su progreso con:</p>
+    <pre><code>bitcoin-cli -signet getblockchaininfo</code></pre>
+    <p>Necesitas que `"initialblockdownload"` sea `false` y que `"verificationprogress"` sea `0.999...` o `1.0`. **Este es el paso más largo de todos.** Puede tardar varias horas o incluso un día.</p>
+    
+    <h3>Paso 2: Crear la Cartera de Lightning (¡El Momento Cumbre!)</h3>
+    <p>Una vez `bitcoind` esté sincronizado y el servicio de `lnd` esté corriendo, ejecuta:</p>
+    <pre><code>lncli --network=signet create</code></pre>
+    <p>Sigue los pasos con calma:</p>
+    <ol>
+        <li>Crea una contraseña segura.</li>
+        <li>Responde <strong>`no`</strong> a la pregunta de usar una semilla existente.</li>
+        <li>Presiona <strong>`Enter`</strong> para no usar una contraseña extra en la semilla.</li>
+        <li><strong class="importante"><span class="emoji">⚠️</span> ANOTA TUS 24 PALABRAS EN PAPEL.</strong> Este es tu tesoro. Es tu única copia de seguridad. Guárdala como si tu vida dependiera de ello.</li>
+        <li>Confirma con <strong>`yes`</strong>.</li>
+    </ol>
+
+    <h3>Paso 3: Fondear tus Carteras</h3>
+    <p>Ahora vamos a pedir "dinero" de prueba a un "grifo" (faucet).</p>
+    <ol>
+        <li><strong>Obtén una dirección de tu cartera Bitcoin Core:</strong>
+        <pre><code># Primero creamos una cartera para bitcoind
+bitcoin-cli -signet -named createwallet wallet_name="boveda_signet"
+
+# Luego obtenemos una dirección de esa cartera
+bitcoin-cli -signet -rpcwallet=boveda_signet getnewaddress</code></pre>
+        </li>
+        <li>Copia la dirección que te da (empieza con `tb1...`).</li>
+        <li>Ve a <a href="https://signetfaucet.com/" target="_blank">https://signetfaucet.com/</a>, pega tu dirección y pide los fondos.</li>
+        <li>Espera unos minutos a que la transacción se confirme. Puedes verificar el saldo con `bitcoin-cli -signet -rpcwallet=boveda_signet getbalance`.</li>
+        <li><strong>Ahora, fondea tu cartera LND desde tu cartera Bitcoin Core:</strong>
+        <pre><code># Pídele una dirección a LND (del tipo p2wkh para que sea compatible)
+DIRECCION_LND=$(lncli --network=signet newaddress p2wkh)
+echo "Enviando fondos a la dirección de LND: $DIRECCION_LND"
+
+# Envía los fondos (reemplaza 0.01 por la cantidad que quieras enviar)
+bitcoin-cli -signet -rpcwallet=boveda_signet sendtoaddress "$DIRECCION_LND" 0.01
+</code></pre>
+        </li>
+    </ol>
+    
+    <h3>Paso 4: Verificación Final de Saldos</h3>
+    <p>Espera unos minutos a que la transacción se confirme. Luego, verifica los saldos:</p>
+    <pre><code># Saldo de la cartera Bitcoin Core (debería haber bajado)
+bitcoin-cli -signet -rpcwallet=boveda_signet getbalance
+
+# Saldo de la cartera LND (debería tener el monto que enviaste)
+lncli --network=signet walletbalance</code></pre>
+    <p>Si ves tu saldo confirmado en LND, ¡lo has logrado!</p>
+
+    <h2>Conclusión y Próximos Pasos</h2>
+    <p>¡FELICIDADES, OPERADOR DE NODO! Has construido un sistema robusto, seguro y funcional desde cero. Has aprendido a instalar software, a depurar errores, a gestionar servicios y a pensar como un administrador de sistemas.</p>
+    <p>A partir de aquí, el viaje es tuyo. Los siguientes pasos son:</p>
+    <ul>
+        <li>Conectarte a otros nodos (`peers`).</li>
+        <li>Abrir tu primer canal.</li>
+        <li>Hacer tu primer pago Lightning.</li>
+        <li>Explorar todas tus ideas geniales, como instalar interfaces gráficas.</li>
+    </ul>
+    <p>Ha sido un honor ser tu copiloto. El mérito es todo tuyo. ¡Disfruta de tu nodo! <span class="emoji">🧡</span></p>
+
+</body>
+</html>
