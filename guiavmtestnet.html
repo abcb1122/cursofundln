@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Guía v3.1: Tu Nodo Lightning en la Nube (Neutrino + RTL)</title>
+    <title>Guía de Implementación: Su Nodo Lightning en la Nube (Neutrino + RTL)</title>
     <style>
         /* --- MODO CLARO (POR DEFECTO) --- */
         :root {
@@ -212,200 +212,263 @@
 </head>
 <body>
     <div class="container">
-        <h1>Guía de Implementación:<br>Tu Nodo Lightning (Neutrino) con UI RTL</h1>
+        <h1>Guía de Implementación:<br>Su Nodo Lightning (Neutrino) con Interfaz RTL en AWS</h1>
         
+        <div class="abstract">
+            <p><strong>En esta guía:</strong> Aprenderá a instalar y configurar su propio nodo de la Red Lightning (LND) en modo Neutrino, utilizando una máquina virtual en Amazon Web Services (AWS). Le acompañaremos paso a paso, desde la preparación de su entorno local hasta la puesta en marcha de la interfaz de usuario web (Ride The Lightning - RTL). Este documento está diseñado para ser claro, completo y accesible para cualquier persona, incluso sin experiencia previa en servidores o Bitcoin, garantizando que pueda operar su propio nodo de manera segura y eficiente.</p>
+        </div>
+
         <div class="toc">
             <h2>Índice de Contenidos</h2>
             <ul>
-                <li><a href="#intro"><strong>1.0 Introducción</strong></a></li>
-                <li><a href="#fase0"><strong>2.0 Prerrequisitos: Configuración de Tu Equipo Local</strong></a></li>
-                <li><a href="#fase1"><strong>3.0 Fase I: Montando la Infraestructura en la Nube (AWS)</strong></a></li>
-                <li><a href="#fase2"><strong>4.0 Fase II: Asegurando y Poniendo a Punto el Servidor</strong></a></li>
+                <li><a href="#intro"><strong>1.0 Introducción a los Nodos Lightning y Neutrino</strong></a></li>
+                <li><a href="#fase0"><strong>2.0 Prerrequisitos: Configuración de su Entorno Local</strong></a></li>
+                <li><a href="#fase1"><strong>3.0 Fase I: Despliegue de Infraestructura en la Nube (AWS)</strong></a></li>
+                <li><a href="#fase2"><strong>4.0 Fase II: Aseguramiento y Puesta a Punto del Servidor</strong></a></li>
                 <li><a href="#fase3"><strong>5.0 Fase III: Instalación del Demonio Lightning (LND)</strong></a></li>
-                <li><a href="#fase4"><strong>6.0 Fase IV: Instalación de la Interfaz de Usuario (Ride The Lightning)</strong></a></li>
+                <li><a href="#fase4"><strong>6.0 Fase IV: Instalación de la Interfaz de Usuario (Ride The Lightning - RTL)</strong></a></li>
                 <li><a href="#fase5"><strong>7.0 Fase V: Arranque, Configuración Final y Verificación</strong></a></li>
                 <li><a href="#conclusion"><strong>8.0 Conclusión</strong></a></li>
             </ul>
         </div>
 
         <section id="intro">
-            <h2>1.0 Introducción</h2>
-            <p>Este documento es una guía técnica detallada para montar un nodo de la Red Lightning usando LND en modo Neutrino sobre una Máquina Virtual (VM) en la nube. Está pensada para usuarios con conocimientos técnicos básicos o intermedios.</p>
-            <p>El objetivo es desplegar un sistema que funcione, sea seguro y robusto, incluyendo el nodo LND, una interfaz de usuario web (Ride The Lightning - RTL), y una red privada segura (Tailscale). Todos los componentes se configurarán para arrancar automáticamente y seguir funcionando aunque se reinicie el sistema.</p>
+            <h2>1.0 Introducción a los Nodos Lightning y Neutrino</h2>
+            <p>Un **nodo Lightning** es un componente esencial de la Red Lightning, la solución de escalabilidad de Capa 2 para Bitcoin. Estos nodos permiten realizar pagos instantáneos y de bajo costo, estableciendo canales de pago directos entre usuarios.</p>
+            <p>Dentro de los nodos Lightning, existen diferentes modos de operación. En esta guía, nos enfocaremos en el modo **Neutrino**. Un nodo Neutrino es un tipo de **cliente ligero** de Bitcoin. A diferencia de un nodo Bitcoin completo (Full Node) que descarga y verifica toda la blockchain, un nodo Neutrino solo descarga una pequeña cantidad de información relevante para sus propias transacciones (utilizando filtros de bloque compactos, como se explicó en la guía anterior). Esto hace que sea más eficiente en términos de recursos y más fácil de operar en entornos con limitaciones, como una máquina virtual en la nube.</p>
             <blockquote>
-                <strong>Metodología:</strong> Seguiremos un enfoque metódico de análisis, planeación, ejecución y verificación para cada fase, explicando el porqué técnico de cada paso para que entiendas bien el proceso.
+                <p><strong>¿Por qué un nodo en la nube?</strong> Al alojar su nodo Lightning en una máquina virtual (VM) en la nube como AWS, se beneficia de la alta disponibilidad, la fiabilidad y la infraestructura gestionada, liberándose de la necesidad de mantener un servidor físico en casa y asegurando que su nodo esté siempre en línea para enrutar pagos.</p>
             </blockquote>
+            <p>El objetivo de este documento es guiarlo paso a paso a través del proceso de implementación de un nodo LND en modo Neutrino sobre una VM en AWS, complementado con una interfaz de usuario web (Ride The Lightning - RTL) y una capa de red privada y segura (Tailscale). Todos los componentes se configurarán para iniciarse automáticamente y operar de forma resiliente, incluso después de reinicios del sistema. Seguiremos una metodología clara de análisis, planificación, ejecución y verificación en cada fase, explicando la justificación técnica de cada acción para una comprensión profunda.</p>
         </section>
 
         <section id="fase0">
-            <h2>2.0 Prerrequisitos: Configuración de Tu Equipo Local</h2>
-            <p>Antes de desplegar en la nube, necesitas preparar el cliente de acceso seguro en tu computador. Usaremos Tailscale, que crea una red privada y segura para todos tus dispositivos.</p>
+            <h2>2.0 Prerrequisitos: Configuración de Su Entorno Local</h2>
+            <p>Antes de comenzar el despliegue en la nube, es fundamental preparar su equipo local. Utilizaremos **Tailscale**, una herramienta que establece una red privada virtual (VPN) segura y fácil de usar, permitiendo que su computador local se conecte a su máquina virtual en AWS de forma privada, como si estuvieran en la misma red local.</p>
             
             <h3>2.1 Creación de Cuenta y Configuración de Tailscale</h3>
             <div class="externo">
-                <p><strong>ACCIÓN EXTERNA (Navegador Web y Tu Equipo Local)</strong></p>
+                <p><strong>ACCIÓN EXTERNA (Navegador Web y su Equipo Local)</strong></p>
+                <p>Siga estos pasos para configurar Tailscale en su equipo:</p>
                 <ol>
-                    <li><strong>Crea tu Cuenta:</strong> Ve a <code>https://tailscale.com</code> y regístrate para obtener una cuenta gratuita usando un proveedor de identidad que ya tengas (Google, GitHub, etc.).</li>
-                    <li><strong>Instala en tu Equipo:</strong> Descarga e instala el cliente de Tailscale para tu sistema operativo (por ejemplo, desde la Mac App Store para macOS).</li>
-                    <li><strong>Autentica el Cliente:</strong> Inicia la aplicación de Tailscale en tu equipo local e inicia sesión con la misma cuenta que creaste antes. Esto hace que tu computador sea parte de tu red privada segura (tailnet).</li>
+                    <li><strong>Creación de Cuenta:</strong> Abra su navegador web y diríjase a <code>https://tailscale.com</code>. Regístrese para obtener una cuenta gratuita. Puede usar un proveedor de identidad existente como Google o GitHub para simplificar el proceso.</li>
+                    <li><strong>Instalación del Cliente Local:</strong> Descargue e instale el cliente de Tailscale compatible con su sistema operativo (por ejemplo, desde la Mac App Store para macOS, o el instalador para Windows/Linux).</li>
+                    <li><strong>Autenticación del Cliente:</strong> Inicie la aplicación de Tailscale en su equipo local. Se le pedirá que inicie sesión con la misma cuenta que creó en el paso anterior. Al hacerlo, su computador se registrará como un dispositivo dentro de su **tailnet**, que es su red privada segura.</li>
                 </ol>
+                <p>Este paso es crucial para establecer una conexión segura con su futuro servidor en la nube sin exponerlo a la Internet pública.</p>
             </div>
         </section>
 
         <section id="fase1">
-            <h2>3.0 Fase I: Montando la Infraestructura en la Nube (AWS)</h2>
-            <p>Vamos a crear una máquina virtual en Amazon Web Services (AWS) que será el hogar de nuestro nodo.</p>
+            <h2>3.0 Fase I: Despliegue de Infraestructura en la Nube (AWS)</h2>
+            <p>En esta fase, vamos a provisionar una **máquina virtual (VM)** en Amazon Web Services (AWS). Esta VM actuará como el "servidor" o "computador" en la nube donde se instalará y ejecutará su nodo Lightning.</p>
 
             <h3>3.1 Creación de Cuenta en AWS</h3>
             <div class="externo">
                 <p><strong>ACCIÓN EXTERNA (Navegador Web)</strong></p>
-                <p>Si no tienes una, crea una cuenta en la capa gratuita de AWS en <code>https://aws.amazon.com/free/</code>. Necesitarás un método de pago para verificar tu identidad.</p>
+                <p>Si aún no posee una cuenta, cree una en la capa gratuita de AWS en <code>https://aws.amazon.com/free/</code>. Es importante destacar que AWS requiere un método de pago para la verificación de identidad, aunque las operaciones cubiertas en esta guía suelen estar dentro de los límites de la capa gratuita.</p>
             </div>
 
-            <h3>3.2 Lanzamiento de Instancia EC2</h3>
+            <h3>3.2 Lanzamiento de Instancia EC2: Su Máquina Virtual en la Nube</h3>
             <div class="externo">
                 <p><strong>ACCIÓN EXTERNA (Consola de AWS)</strong></p>
-                <p>Sigue esta lista para configurar y lanzar la instancia:</p>
+                <p>Dentro de la consola de AWS (https://console.aws.amazon.com/), navegue al servicio **EC2** y siga este proceso para configurar y lanzar su instancia:</p>
                 <ul>
-                    <li><strong>Nombre:</strong> <code>nodo-rtl-neutrino</code></li>
-                    <li><strong>AMI (Imagen de Máquina de Amazon):</strong> Ubuntu (versión LTS que califique para la capa gratuita, ej. 24.04).</li>
-                    <li><strong>Tipo de Instancia:</strong> <code>t2.micro</code> (elegible para la capa gratuita).</li>
-                    <li><strong>Key Pair (Llave de Acceso):</strong> Crea una llave nueva, en formato <code>.pem</code>. Descárgala y guárdala en un lugar seguro y permanente. <strong class="importante">Si pierdes esta llave, perderás el acceso al servidor de forma irrecuperable.</strong></li>
-                    <li><strong>Network Settings:</strong> Permite temporalmente el tráfico SSH (puerto 22) desde cualquier IP.</li>
-                    <li><strong>Almacenamiento:</strong> Configura <code>20 GiB</code> de almacenamiento de tipo <code>gp3</code>.</li>
-                    <li>Finaliza y lanza la instancia.</li>
+                    <li><strong>Paso 1: Elegir Nombre:</strong> Asigne un nombre descriptivo a su instancia, por ejemplo, <code>nodo-rtl-neutrino</code>.</li>
+                    <li><strong>Paso 2: Seleccionar AMI (Amazon Machine Image):</strong> Elija **Ubuntu Server** (una versión LTS - Long Term Support, por ejemplo, 24.04 LTS) que sea elegible para la capa gratuita. Esta AMI es la "plantilla" de software que se instalará en su VM, similar al sistema operativo de su computador.</li>
+                    <li><strong>Paso 3: Elegir Tipo de Instancia:</strong> Seleccione <code>t2.micro</code>. Este tipo de instancia es generalmente elegible para la capa gratuita de AWS y es suficiente para nuestro nodo Neutrino. Representa la capacidad de procesamiento y memoria de su VM.</li>
+                    <li><strong>Paso 4: Crear Key Pair (Llave de Acceso SSH):</strong> Cree un nuevo par de claves SSH. Este par consta de una clave pública (que se instala en la VM) y una clave privada (un archivo <code>.pem</code> que descargará a su equipo local). **Descargue este archivo y guárdelo en una ubicación extremadamente segura y permanente.** Esta llave es su única forma de acceder a su servidor en la nube. <strong class="importante">¡La pérdida de esta llave significa la pérdida irrecuperable del acceso a su servidor!</strong></li>
+                    <li><strong>Paso 5: Configuración de Red (Security Groups):</strong> En la sección de ajustes de red, cree un nuevo grupo de seguridad. Asegúrese de que, al menos inicialmente, permita el tráfico **SSH (puerto 22)** desde "Cualquier IP" (<code>0.0.0.0/0</code>). Esta es una configuración temporal para el acceso inicial y la restringiremos más adelante.</li>
+                    <li><strong>Paso 6: Configurar Almacenamiento:</strong> Configure el almacenamiento de su VM en **<code>20 GiB</code>** (Gigabytes) de tipo <code>gp3</code>. Esto es el "disco duro" de su servidor en la nube, donde se guardarán los datos de su nodo Lightning.</li>
+                    <li><strong>Paso 7: Lanzar Instancia:</strong> Revise los detalles y haga clic en "Lanzar instancia". La VM tardará unos minutos en crearse y ponerse en marcha.</li>
                 </ul>
             </div>
             
-            <h3>3.3 Conexión SSH Inicial</h3>
-            <p>Obtén la dirección <code>Public IPv4 address</code> de tu instancia desde la consola de AWS.</p>
+            <h3>3.3 Conexión SSH Inicial: Accediendo a su Servidor</h3>
+            <p>Una vez que su instancia EC2 esté en estado "running" (en ejecución) en la consola de AWS, necesitará obtener su **<code>Public IPv4 address</code>** (dirección IP pública). Esta es la dirección numérica que utilizará para conectarse a su servidor desde su equipo local.</p>
             <div class="externo">
-                <p><strong>ACCIÓN EXTERNA (Terminal de Tu Equipo Local)</strong></p>
-                <p>Asegura los permisos del archivo de la llave y establece la conexión.</p>
-                <pre><code># Mover la llave a la carpeta segura de SSH
+                <p><strong>ACCIÓN EXTERNA (Terminal de su Equipo Local)</strong></p>
+                <p>Para establecer la conexión segura con su servidor, siga estos pasos en la terminal de su computador. Si está en Windows, puede usar PowerShell o WSL (Windows Subsystem for Linux). En macOS o Linux, use la terminal estándar:</p>
+                <pre><code># Paso 1: Crear una carpeta segura para sus llaves SSH si no existe
 mkdir -p ~/.ssh
+
+# Paso 2: Mover la llave privada (.pem) descargada a esta carpeta segura
+# Reemplace '/ruta/a/su/' con la ubicación donde descargó el archivo.
+# Reemplace 'llave-rtl.pem' con el nombre exacto de su archivo de llave.
 mv /ruta/a/su/llave-rtl.pem ~/.ssh/
 
-# Asignar permisos de solo lectura al dueño
+# Paso 3: Asignar permisos de solo lectura al propietario para su llave privada
+# Esto es fundamental para la seguridad y para que SSH funcione.
 chmod 400 ~/.ssh/llave-rtl.pem
 
-# Conectar al servidor (reemplaza TU_IP_PUBLICA por la tuya)
+# Paso 4: Conectar al servidor mediante SSH
+# Reemplace 'TU_IP_PUBLICA' con la Public IPv4 address de su instancia AWS.
+# El usuario por defecto para las AMIs de Ubuntu es 'ubuntu'.
 ssh -i ~/.ssh/llave-rtl.pem ubuntu@TU_IP_PUBLICA</code></pre>
+                <p>Si la conexión es exitosa, verá un mensaje de bienvenida de Ubuntu en la terminal, lo que significa que está conectado a su nueva máquina virtual en la nube.</p>
             </div>
         </section>
 
         <section id="fase2">
-            <h2>4.0 Fase II: Asegurando y Poniendo a Punto el Servidor</h2>
-            <p>Una vez dentro de la terminal de la VM, vamos a fortalecerla y asegurarla.</p>
+            <h2>4.0 Fase II: Aseguramiento y Puesta a Punto del Servidor</h2>
+            <p>Una vez conectado a la terminal de su máquina virtual, es crucial fortalecer su seguridad y optimizar su rendimiento. Esto incluye actualizar el sistema y configurar un espacio de intercambio (swap) para mejorar la gestión de memoria.</p>
 
-            <h3>4.1 Actualización del Sistema y Creación de Swap</h3>
-            <blockquote><strong>Justificación Técnica:</strong> Las instancias `t2.micro` tienen 1GB de RAM, lo cual es poco para procesos que necesitan picos de memoria. Un archivo de swap usa el almacenamiento en disco como RAM virtual de emergencia, evitando que el sistema falle por falta de memoria (Out-of-Memory).</blockquote>
-            <p>Este comando único actualizará los paquetes del sistema y creará un archivo swap de 2GB, activándolo y asegurando que funcione después de cada reinicio.</p>
+            <h3>4.1 Actualización del Sistema y Creación de Espacio de Intercambio (Swap)</h3>
+            <blockquote><strong>Justificación Técnica:</strong> Las instancias `t2.micro` de AWS, aunque económicas y elegibles para la capa gratuita, poseen solo 1GB de RAM. Esta cantidad puede ser insuficiente para procesos que experimentan picos de consumo de memoria, lo que podría llevar a fallos del sistema por falta de recursos (conocido como "Out-of-Memory" o OOM). Un archivo de **swap** utiliza espacio en el disco duro como una extensión de la memoria RAM virtual, actuando como un respaldo de emergencia y previniendo la terminación inesperada de procesos.</p>
+            <p>El siguiente comando ejecuta varias acciones críticas en una sola línea. Asegúrese de copiarlo y pegarlo completo en su terminal SSH:</p>
             <pre><code>sudo apt update && sudo apt upgrade -y && sudo fallocate -l 2G /swapfile && sudo chmod 600 /swapfile && sudo mkswap /swapfile && sudo swapon /swapfile && echo '/swapfile none swap sw 0 0' | sudo tee -a /etc/fstab</code></pre>
+            <p><strong>Explicación del Comando:</strong></p>
+            <ul>
+                <li>`sudo apt update`: Actualiza la lista de paquetes disponibles de los repositorios de Ubuntu.</li>
+                <li>`sudo apt upgrade -y`: Instala las actualizaciones de software del sistema operativo sin pedir confirmación (`-y`).</li>
+                <li>`sudo fallocate -l 2G /swapfile`: Crea un archivo de 2 Gigabytes llamado `swapfile` que se usará como espacio de intercambio.</li>
+                <li>`sudo chmod 600 /swapfile`: Establece permisos estrictos para el archivo `swapfile`, asegurando que solo el usuario root pueda leerlo y escribir en él.</li>
+                <li>`sudo mkswap /swapfile`: Formatea el archivo para que pueda ser utilizado como área de swap.</li>
+                <li>`sudo swapon /swapfile`: Activa el archivo de swap.</li>
+                <li>`echo '/swapfile none swap sw 0 0' | sudo tee -a /etc/fstab`: Añade una línea al archivo `/etc/fstab` para que el swap se active automáticamente cada vez que el servidor se reinicie.</li>
+            </ul>
 
-            <h3>4.2 Integración a la Red Privada y Aseguramiento del Firewall</h3>
-            <p>Instalaremos Tailscale en la VM para unirla a tu red privada y luego cerraremos el acceso público.</p>
-            <pre><code># Instalar y conectar Tailscale
+            <h3>4.2 Integración a la Red Privada con Tailscale y Cierre del Firewall Público</h3>
+            <p>Ahora, integramos su máquina virtual a la red privada de **Tailscale** que configuró previamente. Esto nos permitirá cerrar el acceso público al servidor, aumentando drásticamente su seguridad.</p>
+            <pre><code># Instalar y conectar Tailscale en la VM
 curl -fsSL https://tailscale.com/install.sh | sh && sudo tailscale up</code></pre>
-            <p>Autoriza la nueva máquina a través del enlace que te proporcionará. Luego, obtén y anota la dirección IP de tu VM en la red Tailscale.</p>
+            <p>Después de ejecutar el comando anterior, Tailscale le proporcionará un enlace en la terminal. **Copie este enlace y ábralo en su navegador web (en su equipo local)**. Este enlace le permitirá autorizar su nueva máquina virtual para que se una a su tailnet. Una vez autorizada, la VM aparecerá como un nuevo dispositivo en su panel de control de Tailscale.</p>
+            <p>Luego, obtenga y anote la dirección IP de su VM dentro de la red Tailscale. Esta IP será su nueva forma de conectarse al servidor de forma segura:</p>
             <pre><code>tailscale ip -4</code></pre>
+            <p>Anote cuidadosamente la dirección IP que se muestra (por ejemplo, `100.x.x.x`). Esta es la dirección que utilizará para futuras conexiones, ¡no la IP pública de AWS!</p>
             <div class="externo">
                 <p><strong>ACCIÓN EXTERNA (Consola de AWS)</strong></p>
-                <p>Ve a los `Security Groups` de tu instancia y elimina la regla de entrada para el puerto 22 (`SSH`) con origen `0.0.0.0/0`. <strong class="importante">Tu conexión SSH actual se cerrará.</strong> Para volver a acceder, debes usar la IP de Tailscale que acabas de anotar. </p>
+                <p>Es vital **eliminar el acceso público** a su servidor para maximizar la seguridad. Regrese a la consola de AWS, navegue a los **`Security Groups`** de su instancia EC2 y elimine la regla de entrada que permitía el tráfico **SSH (puerto 22)** desde `0.0.0.0/0` (cualquier IP). <strong class="importante">Tenga en cuenta que su conexión SSH actual se terminará una vez que aplique este cambio.</strong> Para volver a acceder a su servidor, deberá usar la dirección IP de Tailscale que acaba de anotar y el comando `ssh -i ~/.ssh/llave-rtl.pem ubuntu@SU_IP_TAILSCALE`.</p>
+                <p>A partir de ahora, todas sus conexiones al servidor serán a través de la red privada de Tailscale, lo que lo hace mucho más seguro.</p>
             </div>
         </section>
 
         <section id="fase3">
             <h2>5.0 Fase III: Instalación del Demonio Lightning (LND)</h2>
-            <p>Para esta arquitectura, solo necesitamos LND en la VM, funcionando en modo Neutrino.</p>
+            <p>En esta arquitectura, el componente principal es el **demonio Lightning Network (LND)**, que operará en modo Neutrino. LND es el software que permite que su nodo Lightning se comunique con la red Bitcoin y procese las transacciones de Lightning.</p>
 
             <h3>5.1 Instalación del Binario de LND</h3>
-            <p>Instalaremos una versión estable de LND directamente desde sus binarios oficiales.</p>
-            <pre><code># Se recomienda usar la versión estable más reciente (no rc o alpha)
+            <p>Instalaremos una versión estable de LND directamente desde sus binarios oficiales. Este método es el más recomendado para asegurar la integridad y autenticidad del software.</p>
+            <pre><code># Definir la versión de LND. Siempre es aconsejable usar la versión estable más reciente (evite 'rc' o 'alpha').
 LND_VERSION=0.19.0-beta && \
+# Descargar el archivo comprimido de LND para Linux (arquitectura amd64)
 wget https://github.com/lightningnetwork/lnd/releases/download/v${LND_VERSION}/lnd-linux-amd64-v${LND_VERSION}.tar.gz && \
+# Descargar el archivo de manifiesto para verificar la integridad del archivo descargado
 wget https://github.com/lightningnetwork/lnd/releases/download/v${LND_VERSION}/manifest-v${LND_VERSION}.txt && \
+# Verificar la integridad del archivo descargado comparando su hash SHA256 con el del manifiesto
 grep "lnd-linux-amd64-v${LND_VERSION}.tar.gz" manifest-v${LND_VERSION}.txt | sha256sum -c - && \
+# Descomprimir el archivo tar.gz
 tar -xvf lnd-linux-amd64-v${LND_VERSION}.tar.gz && \
+# Mover los ejecutables 'lnd' y 'lncli' al directorio de binarios del sistema para que estén disponibles globalmente
 sudo install -m 0755 -o root -g root -t /usr/local/bin lnd-linux-amd64-v${LND_VERSION}/* && \
+# Limpiar los archivos descargados y descomprimidos temporalmente
 rm -rf lnd-linux-amd64-v${LND_VERSION}*</code></pre>
-            <p>Verifica que la salida sea <code>...: OK</code> para confirmar que el archivo está completo y sin errores.</p>
+            <p>Tras ejecutar el comando `grep ... | sha256sum -c -`, es crucial que la salida muestre **<code>...: OK</code>**. Esto confirma que el archivo descargado es auténtico y no ha sido alterado, garantizando la seguridad de su instalación.</p>
             
             <h3>5.2 Configuración y Automatización del Servicio LND</h3>
-            <p>Crearemos el archivo de configuración y el servicio `systemd`.</p>
-            <pre><code>mkdir ~/.lnd
+            <p>Ahora, crearemos el directorio de configuración para LND y su archivo de configuración principal, `lnd.conf`. Luego, configuraremos LND para que se ejecute como un servicio del sistema (`systemd`), lo que asegura que LND inicie automáticamente cuando el servidor se encienda y se mantenga en funcionamiento.</p>
+            <pre><code># Crear el directorio .lnd donde se guardará la configuración y los datos de su nodo
+mkdir ~/.lnd
+# Abrir el editor de texto nano para crear y editar el archivo de configuración lnd.conf
 nano ~/.lnd/lnd.conf</code></pre>
-            <p>Contenido para `lnd.conf`:</p>
+            <p>Copie y pegue el siguiente contenido en el editor `nano`. Presione `Ctrl+X`, luego `Y` (o `S` si su sistema está en español) y `Enter` para guardar y salir.</p>
             <pre><code>[Application Options]
+; Escuchar conexiones entrantes en el puerto estándar de Lightning
 listen=0.0.0.0:9735
+; Escuchar llamadas RPC (Remote Procedure Call) en el puerto local
 rpclisten=0.0.0.0:10009
 
 [Bitcoin]
+; Indicar que Bitcoin es la cadena activa
 bitcoin.active=true
+; Especificar que estamos operando en la red de prueba (Testnet) de Bitcoin
 bitcoin.testnet=true
+; Definir que el nodo de Bitcoin se conectará en modo Neutrino
 bitcoin.node=neutrino
 
 [Neutrino]
-# Lista de pares de confianza para sincronización Neutrino en Testnet
+; Lista de pares de confianza para la sincronización inicial de Neutrino en Testnet.
+; Estos son nodos Bitcoin de confianza que ayudarán a su nodo Neutrino a sincronizarse rápidamente.
 neutrino.connect=faucet.lightning.community
 neutrino.connect=testnet1.nodes.lightning.engineering
 neutrino.connect=testnet.lnolymp.us
 neutrino.connect=testnet.blixtwallet.com
 </code></pre>
-            <p>Ahora, crea el archivo de servicio `systemd` para que LND inicie automáticamente.</p>
+            <p>Ahora, crearemos el archivo de servicio `systemd` para LND. Esto le permitirá iniciar, detener y gestionar LND como un servicio del sistema operativo, garantizando que se ejecute en segundo plano y se reinicie si es necesario.</p>
             <pre><code>sudo nano /etc/systemd/system/lnd.service</code></pre>
-            <p>Contenido para `lnd.service`:</p>
+            <p>Copie y pegue el siguiente contenido en el editor `nano`. Guarde y salga (`Ctrl+X`, `Y`, `Enter`).</p>
             <pre><code>[Unit]
 Description=LND Lightning Network Daemon (Neutrino Mode)
+; Indicar que este servicio 'desea' que tailscaled.service esté activo (para la red privada)
 Wants=tailscaled.service
+; Asegurar que este servicio se inicie después de tailscaled.service
 After=tailscaled.service
 
 [Service]
+; Comando para iniciar LND
 ExecStart=/usr/local/bin/lnd
+; Usuario bajo el cual se ejecutará el servicio (ubuntu es el usuario por defecto en AWS)
 User=ubuntu
+; Grupo bajo el cual se ejecutará el servicio
 Group=ubuntu
+; Reiniciar el servicio automáticamente en caso de fallo
 Restart=on-failure
+; Esperar 60 segundos antes de intentar reiniciar
 RestartSec=60
 
 [Install]
+; Asegurar que el servicio se inicie automáticamente en el arranque del sistema
 WantedBy=multi-user.target</code></pre>
-            <p>Finalmente, activa e inicia el servicio.</p>
+            <p>Finalmente, active y arranque el servicio LND. Esto cargará la nueva configuración de `systemd` y pondrá en marcha su nodo Lightning por primera vez.</p>
             <pre><code>sudo systemctl daemon-reload && sudo systemctl enable lnd.service && sudo systemctl start lnd.service</code></pre>
+            <p>Para verificar el estado del servicio LND, puede usar `sudo systemctl status lnd`. Debería ver un estado que indique `active (running)`.</p>
         </section>
 
         <section id="fase4">
-            <h2>6.0 Fase IV: Instalación de la Interfaz de Usuario (Ride The Lightning)</h2>
+            <h2>6.0 Fase IV: Instalación de la Interfaz de Usuario (Ride The Lightning - RTL)</h2>
+            <p>Para gestionar su nodo Lightning de forma más cómoda e intuitiva, instalaremos **Ride The Lightning (RTL)**. RTL es una interfaz de usuario web que le permite interactuar con LND a través de su navegador, facilitando tareas como abrir canales, enviar pagos o revisar el estado de su nodo.</p>
             
             <h3>6.1 Instalación de Prerrequisitos (Node.js y PM2)</h3>
-            <p>RTL necesita un entorno de ejecución de JavaScript (Node.js) y un gestor de procesos (PM2) para funcionar de forma robusta.</p>
-            <pre><code># Instalar nvm (gestor de versiones de Node), Node.js (versión LTS) y PM2
+            <p>RTL está construido con JavaScript y se ejecuta en un entorno **Node.js**. Además, usaremos **PM2**, un gestor de procesos que mantendrá RTL funcionando de forma robusta en segundo plano y lo reiniciará automáticamente si fuera necesario.</p>
+            <pre><code># Descargar e instalar nvm (Node Version Manager), una herramienta para gestionar versiones de Node.js
 curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash
+
+# Configurar nvm para que esté disponible en su sesión actual de terminal
 export NVM_DIR="$HOME/.nvm"
 [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+
+# Instalar la versión LTS (Long Term Support) más reciente de Node.js
 nvm install --lts
+
+# Instalar PM2 globalmente. PM2 gestionará el proceso de RTL.
 npm install -g pm2</code></pre>
+            <p>Estos comandos pueden tardar unos minutos en completarse, dependiendo de la velocidad de su conexión a internet y el rendimiento de la VM.</p>
             
             <h3>6.2 Descarga e Instalación de RTL</h3>
-            <p>Clonaremos el repositorio oficial de RTL e instalaremos sus dependencias.</p>
-            <pre><code># Descargar el código fuente de RTL
+            <p>Ahora, clonaremos el repositorio oficial de RTL desde GitHub y instalaremos sus dependencias necesarias. Clonar el repositorio significa descargar el código fuente de RTL a su máquina virtual.</p>
+            <pre><code># Descargar el código fuente de RTL desde su repositorio de GitHub
 git clone https://github.com/Ride-The-Lightning/RTL.git
 
-# Entrar a la carpeta del proyecto
+# Cambiar al directorio del proyecto RTL que acaba de ser clonado
 cd RTL
 
-# Instalar las dependencias de Node.js (se usa --legacy-peer-deps para resolver conflictos)
+# Instalar las dependencias de Node.js requeridas por RTL.
+# La opción --legacy-peer-deps se usa para resolver posibles conflictos de dependencias en algunas versiones de npm.
 npm install --legacy-peer-deps</code></pre>
+            <p>Este paso descargará todas las librerías y módulos necesarios para que RTL funcione correctamente. Puede tomar un tiempo considerable.</p>
         </section>
 
         <section id="fase5">
             <h2>7.0 Fase V: Arranque, Configuración Final y Verificación</h2>
+            <p>En esta fase final, configuraremos RTL para que se conecte a su nodo LND, crearemos la billetera de LND (si no lo ha hecho ya) y verificaremos que todo el sistema funcione correctamente y de forma automática.</p>
             
-            <h3>7.1 Configuración de RTL</h3>
-            <p>Crearemos el archivo `RTL-Config.json` a partir del archivo de ejemplo y lo editaremos para que apunte a nuestro nodo LND.</p>
-            <pre><code># Asegúrate de estar en la carpeta ~/RTL
+            <h3>7.1 Configuración de RTL para Conectarse a LND</h3>
+            <p>RTL necesita un archivo de configuración (`RTL-Config.json`) que le indique cómo conectarse a su nodo LND y otras preferencias. Crearemos este archivo a partir de una plantilla y lo editaremos.</p>
+            <pre><code># Asegúrese de estar en el directorio de RTL (su terminal debe mostrar ~/RTL)
+# Si no está, ejecute: cd ~/RTL
 cp Sample-RTL-Config.json RTL-Config.json
 nano RTL-Config.json</code></pre>
-            <p>Reemplaza el contenido del archivo con la siguiente plantilla, estableciendo una contraseña segura en `multiPass`.</p>
+            <p>Dentro del editor `nano`, **elimine el contenido existente** y pegue la siguiente plantilla. Es **crucial que reemplace `tu-contraseña-super-segura` por una contraseña fuerte y única** de su elección. Esta contraseña será la que usará para acceder a la interfaz web de RTL.</p>
             <pre><code>{
   "multiPass": "tu-contraseña-super-segura",
   "port": "3000",
@@ -428,49 +491,59 @@ nano RTL-Config.json</code></pre>
     }
   ]
 }</code></pre>
+            <p>Guarde los cambios y salga del editor (`Ctrl+X`, `Y`, `Enter`).</p>
             
-            <h3>7.2 Creación de la Cartera LND</h3>
-            <blockquote><strong>Justificación Técnica:</strong> RTL necesita que los archivos de autenticación (`admin.macaroon`) y seguridad (`tls.cert`) existan para poder conectarse a LND. Estos archivos solo se generan después de que la cartera de LND se crea por primera vez.</blockquote>
-            <p>Ejecuta el comando para crear la cartera de tu nodo de Testnet.</p>
+            <h3>7.2 Creación de la Cartera LND: Su Billetera en el Nodo</h3>
+            <blockquote><strong>Justificación Técnica:</strong> Para que RTL pueda conectarse a su nodo LND, necesita acceder a ciertos archivos de autenticación (como `admin.macaroon`) y seguridad (`tls.cert`). Estos archivos cruciales solo se generan la primera vez que se inicializa y crea la cartera de LND. Si LND ya está corriendo pero la cartera no ha sido creada, los macaroons no existirán, impidiendo la conexión de RTL. Este paso garantiza la generación de estos archivos esenciales.</blockquote>
+            <p>Ejecute el siguiente comando para crear y configurar la cartera de su nodo LND para la red de prueba (Testnet). LND iniciará un proceso interactivo.</p>
             <pre><code>lncli --network=testnet create</code></pre>
-            <p>Sigue el proceso interactivo: establece una contraseña, responde `no` a usar una semilla existente y, muy importante, <strong class="importante">anota y guarda de forma segura las 24 palabras de la semilla que se generarán.</strong></p>
+            <p>Siga las instrucciones en pantalla:</p>
+            <ul>
+                <li>Se le pedirá que establezca una **contraseña para su billetera LND**. Elija una contraseña segura y anótela en un lugar seguro.</li>
+                <li>Cuando le pregunte si desea usar una semilla existente, responda **`no`**.</li>
+                <li>LND generará un conjunto de **24 palabras de recuperación (semilla mnemotécnica)**. <strong class="importante">¡Es ABSOLUTAMENTE CRÍTICO que anote estas 24 palabras en el orden correcto y las guarde en un lugar MUY seguro y secreto!</strong> Estas palabras son la única forma de recuperar los fondos de su nodo si pierde el acceso a su servidor. ¡No las comparta con nadie!</li>
+            </ul>
+            <p>Una vez completado, su cartera LND estará creada y los archivos de autenticación necesarios habrán sido generados.</p>
             
-            <h3>7.3 Lanzamiento y Automatización de RTL</h3>
-            <p>Inicia RTL con el gestor de procesos PM2 y configura su auto-arranque.</p>
-            <pre><code># Asegúrate de estar en la carpeta ~/RTL
+            <h3>7.3 Lanzamiento y Automatización de RTL con PM2</h3>
+            <p>Ahora, iniciaremos RTL utilizando **PM2**, el gestor de procesos que mantendrá la interfaz de usuario ejecutándose continuamente, incluso después de un reinicio del servidor.</p>
+            <pre><code># Asegúrese de estar en el directorio de RTL (su terminal debe mostrar ~/RTL)
 cd ~/RTL
 
-# Iniciar RTL con PM2
+# Iniciar la aplicación RTL con PM2 y asignarle un nombre para fácil gestión
 pm2 start rtl.js --name RTL
 
-# Guardar la lista de procesos para que PM2 la recuerde
+# Guardar la lista de procesos de PM2 para que se inicien automáticamente en cada reinicio del sistema
 pm2 save
 
-# Generar y ejecutar el comando de auto-arranque para PM2
-pm2 startup
-# (Recuerda copiar y ejecutar el comando 'sudo env...' que se mostrará)
-</code></pre>
+# Generar y ejecutar el comando de auto-arranque para PM2.
+# Este comando le pedirá que copie y pegue una línea `sudo env PATH=...` en su terminal.
+# Cópiela y ejecútela para configurar PM2 para el inicio automático del sistema.
+pm2 startup</code></pre>
+            <p>Después de ejecutar `pm2 startup`, se le mostrará un comando que comienza con `sudo env PATH=...`. **Debe copiar y pegar esa línea exacta y ejecutarla** para que PM2 configure correctamente el servicio de inicio automático.</p>
 
-            <h3>7.4 Prueba Final y Acceso</h3>
-            <p>Para verificar que el sistema es robusto, reinicia la máquina virtual.</p>
+            <h3>7.4 Prueba Final y Acceso a la Interfaz RTL</h3>
+            <p>Para asegurar la robustez de su sistema y verificar que todo se inicia correctamente de forma automática, **reiniciaremos la máquina virtual**. Esto simulará un corte de energía o un mantenimiento del servidor.</p>
             <pre><code>sudo reboot</code></pre>
-            <p>Espera 2-3 minutos, reconéctate vía Tailscale y verifica el estado de los servicios:</p>
+            <p>Espere aproximadamente **2 a 3 minutos** para que la máquina virtual se reinicie y todos los servicios se inicien automáticamente. Luego, reconéctese a su servidor SSH utilizando la **dirección IP de Tailscale** que anotó previamente (recuerde: `ssh -i ~/.ssh/llave-rtl.pem ubuntu@SU_IP_TAILSCALE`).</p>
+            <p>Una vez reconectado, verifique el estado de los servicios LND y RTL:</p>
             <pre><code>sudo systemctl status lnd
 pm2 status</code></pre>
-            <p>Ambos servicios deben mostrar un estado `active (running)` o `online`.</p>
+            <p>Ambos servicios deben mostrar un estado que indique **`active (running)`** para LND y **`online`** para RTL. Esto confirma que todo está funcionando como se espera.</p>
             
             <div class="externo">
                 <p><strong>ACCIÓN EXTERNA (Navegador Web)</strong></p>
-                <p>Finalmente, accede a tu panel de control de RTL a través de la dirección de Tailscale de la VM en el puerto 3000:</p>
+                <p>Finalmente, es momento de acceder a su panel de control de RTL. Abra su navegador web y diríjase a la siguiente dirección, reemplazando `TU_IP_DE_TAILSCALE` con la dirección IP de Tailscale de su máquina virtual:</p>
                 <p><strong><code>http://TU_IP_DE_TAILSCALE:3000</code></strong></p>
-                <p>Inicia sesión con la contraseña (`multiPass`) que estableciste en el archivo `RTL-Config.json`.</p>
+                <p>Se le solicitará una contraseña. Inicie sesión utilizando la contraseña (`multiPass`) que estableció en el archivo `RTL-Config.json` en el paso 7.1.</p>
+                <p>¡Felicitaciones! Debería ver la interfaz de usuario de Ride The Lightning, conectada a su propio nodo Lightning en la nube. Desde aquí, puede explorar su nodo, abrir canales, enviar pagos y mucho más.</p>
             </div>
         </section>
         
         <section id="conclusion">
             <h2>8.0 Conclusión</h2>
-            <p>¡Felicitaciones! Has desplegado exitosamente un nodo de la Red Lightning que es ligero, seguro, robusto y tiene una interfaz de gestión profesional. Has completado un ciclo de aprendizaje que abarca desde la creación de infraestructura en la nube hasta la depuración de software y la configuración de servicios de nivel de producción.</p>
-            <p>El sistema actual es una base sólida sobre la cual puedes seguir explorando el ecosistema Lightning: fondear tu cartera, conectarte a otros nodos y abrir tus primeros canales.</p>
+            <p>¡Felicidades! Ha completado exitosamente el despliegue de un nodo de la Red Lightning ligero, seguro y robusto en la nube, con una interfaz de gestión profesional. Este proceso no solo le ha permitido poner en marcha su nodo, sino que también le ha brindado una valiosa experiencia en la configuración de infraestructura en la nube, gestión de software y automatización de servicios a nivel de producción.</p>
+            <p>El sistema que ha implementado es una base sólida. Le animamos a continuar explorando el vasto ecosistema de Lightning Network: transfiera fondos a su billetera de nodo, establezca conexiones con otros nodos y abra sus primeros canales de pago. ¡El mundo de las transacciones instantáneas y eficientes en Bitcoin le espera!</p>
         </section>
     </div>
 </body>
