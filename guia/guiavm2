@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Guía v3: Tu Nodo Lightning en la Nube (Neutrino + RTL)</title>
+    <style>
+        body {
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            line-height: 1.7;
+            color: #3a3a3a;
+            max-width: 850px;
+            margin: 20px auto;
+            padding: 25px;
+            background-color: #ffffff;
+            border: 1px solid #e0e0e0;
+        }
+        h1, h2, h3 {
+            color: #d97d0d; /* Naranja Bitcoin */
+            border-bottom: 2px solid #f0f0f0;
+            padding-bottom: 8px;
+            margin-top: 40px;
+        }
+        h1 {
+            text-align: center;
+            border-bottom: 4px solid #d97d0d;
+            font-size: 2.5em;
+            margin-bottom: 25px;
+        }
+        h2 { font-size: 2em; }
+        h3 { font-size: 1.5em; border-bottom-style: dashed; }
+        code {
+            background-color: #e9e9e9;
+            padding: 3px 7px;
+            border-radius: 5px;
+            font-family: "SF Mono", "Fira Code", "Courier New", Courier, monospace;
+            font-size: 0.95em;
+            word-wrap: break-word;
+        }
+        pre {
+            background-color: #2d2d2d;
+            color: #f8f8f2;
+            padding: 20px;
+            border-radius: 8px;
+            overflow-x: auto;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+        blockquote {
+            border-left: 5px solid #d97d0d;
+            padding-left: 20px;
+            margin: 25px 0;
+            font-style: italic;
+            color: #555;
+            background-color: #fff9f0;
+        }
+        .emoji { font-size: 1.2em; vertical-align: middle; }
+        .importante { color: #c0392b; font-weight: bold; }
+        .leccion, .externo {
+            padding: 20px;
+            margin: 25px 0;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+        .leccion { background-color: #e8f4fd; border-left: 5px solid #0d6efd; }
+        .externo { background-color: #fff3cd; border-left: 5px solid #ffc107; }
+        .leccion strong, .externo strong { color: #0c5464; }
+        .toc {
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 40px;
+        }
+        .toc ul { padding-left: 20px; }
+        .toc a { text-decoration: none; color: #0d6efd; }
+        .toc a:hover { text-decoration: underline; }
+    </style>
+</head>
+<body>
+
+    <h1><span class="emoji">🚀</span> Guía Definitiva v3: Tu Nodo Lightning en la Nube <span class="emoji">⚡️</span></h1>
+    <p><em>Una guía de principiante a profesional, forjada en la batalla contra los errores y la curiosidad. Por Ariel y su copiloto de IA.</em></p>
+    
+    <div class="toc">
+        <h2>Índice de la Misión</h2>
+        <ul>
+            <li><a href="#intro">Introducción: El Plan de Vuelo</a></li>
+            <li><a href="#fase0">Fase 0: Preparando tu Máquina Local (Tailscale)</a></li>
+            <li><a href="#fase1">Fase 1: La Plataforma de Lanzamiento (Servidor AWS)</a></li>
+            <li><a href="#fase2">Fase 2: Blindando el Cohete (Seguridad y Puesta a Punto)</a></li>
+            <li><a href="#fase3">Fase 3: El Motor Principal (LND en Modo Neutrino)</a></li>
+            <li><a href="#fase4">Fase 4: La Cabina de Mando (Ride The Lightning - RTL)</a></li>
+            <li><a href="#fase5">Fase 5: El Lanzamiento y la Prueba de Fuego</a></li>
+            <li><a href="#conclusion">Conclusión: Eres el Comandante</a></li>
+        </ul>
+    </div>
+
+    <h2 id="intro">Introducción: El Plan de Vuelo</h2>
+    <p>Hola, futuro operador de nodo. Si tienes 15 años o más y una curiosidad gigante, esta guía es para ti. Juntos, vamos a montar desde cero un sistema que es ligero, rápido, seguro y profesional.</p>
+    <p>Al final de esta guía, tendrás:</p>
+    <ul>
+        <li>Una <strong>máquina virtual (VM)</strong> propia, ligera y segura en la nube (AWS).</li>
+        <li>Un <strong>nodo de Lightning Network (LND)</strong> en modo **Neutrino**, que sincroniza en minutos u horas, no en días.</li>
+        <li>Un <strong>túnel privado y seguro (Tailscale)</strong> para acceder a tus herramientas desde cualquier lugar.</li>
+        <li>Una <strong>interfaz gráfica profesional (Ride The Lightning - RTL)</strong> para manejar tu nodo desde tu navegador.</li>
+        <li>Todo configurado como <strong>servicios automáticos y resilientes</strong> que sobreviven a reinicios.</li>
+    </ul>
+    <blockquote>
+        <span class="emoji">🧠</span> <strong>Nuestra Filosofía:</strong> Analizar, planificar, ejecutar y verificar. Entenderemos el "porqué" de cada paso para no solo seguir instrucciones, sino para convertirnos en verdaderos administradores de sistemas.
+    </blockquote>
+    
+    <h2 id="fase0">Fase 0: Preparando tu Máquina Local (Tailscale)</h2>
+    <p>Antes de siquiera tocar la nube, prepararemos nuestra herramienta de acceso seguro. Usaremos Tailscale.</p>
+    <div class="leccion">
+        <span class="emoji">💡</span> <strong>¿Qué es Tailscale?</strong> Imagina que internet es una ciudad caótica y concurrida. Tailscale te permite construir un **pasadizo secreto y encriptado** que conecta tu computadora (Mac, PC) y tu celular directamente con tu servidor en la nube, sin pasar por las calles públicas. Nadie más puede ver o usar ese pasadizo. Es nuestra red privada y ultra-segura.
+    </div>
+    <h3>Paso 1: Crear una Cuenta de Tailscale</h3>
+    <div class="externo">
+        <strong><span class="emoji">🌐</span> ACCIÓN EXTERNA: Navegador Web</strong>
+        <ol>
+            <li>Ve a <a href="https://tailscale.com/" target="_blank">tailscale.com</a>.</li>
+            <li>Haz clic en <strong>"Get started"</strong> o "Sign up".</li>
+            <li>Regístrate usando una cuenta que ya tengas (Google, GitHub, Apple, Microsoft). Es gratis para uso personal.</li>
+        </ol>
+    </div>
+    <h3>Paso 2: Instalar Tailscale en tu Computadora Principal (Mac)</h3>
+     <div class="externo">
+        <strong><span class="emoji">💻</span> ACCIÓN EXTERNA: Tu Mac</strong>
+        <ol>
+            <li>Abre la <strong>App Store</strong> en tu Mac.</li>
+            <li>Busca "Tailscale" y descarga e instala la aplicación.</li>
+            <li>Abre la aplicación de Tailscale e inicia sesión con la misma cuenta que creaste en el paso anterior.</li>
+        </ol>
+        <p>¡Listo! Tu computadora principal ya es parte de tu red privada.</p>
+    </div>
+
+    <h2 id="fase1">Fase 1: La Plataforma de Lanzamiento (Servidor AWS)</h2>
+    <p>Ahora sí, vamos a la nube a construir nuestro servidor.</p>
+
+    <h3>Paso 1: Crear una cuenta en AWS</h3>
+    <div class="externo">
+        <strong><span class="emoji">🌐</span> ACCIÓN EXTERNA: Navegador Web</strong>
+        <p>Ve a <a href="https://aws.amazon.com/free/" target="_blank">https://aws.amazon.com/free/</a> y crea una cuenta gratuita. Necesitarás una tarjeta de crédito/débito para la verificación (no te cobrarán si seguimos los pasos de la capa gratuita).</p>
+    </div>
+
+    <h3>Paso 2: Lanzar la Máquina Virtual (Instancia EC2)</h3>
+    <div class="externo">
+        <strong><span class="emoji">🌐</span> ACCIÓN EXTERNA: Consola de AWS</strong>
+        <p>Una vez dentro de la consola de AWS, sigue esta lista de chequeo:</p>
+        <ol>
+            <li>Haz clic en <strong>"Launch instance"</strong>.</li>
+            <li><strong>Nombre:</strong> <code>nodo-rtl-neutrino</code>.</li>
+            <li><strong>Sistema Operativo (AMI):</strong> Elige **Ubuntu** (la versión que diga "Free tier eligible").</li>
+            <li><strong>Tipo de Instancia:</strong> Elige <strong><code>t2.micro</code></strong> ("Free tier eligible").</li>
+            <li><strong>Llave de Acceso (Key Pair):</strong> ¡Paso crítico! Haz clic en <strong>"Create new key pair"</strong>. Dale un nombre (ej: <code>llave-rtl</code>), formato <code>.pem</code>, y guarda el archivo en un lugar súper seguro. <strong class="importante">Esta llave es irrecuperable. Si la pierdes, pierdes el acceso.</strong></li>
+            <li><strong>Configuración de Red:</strong> Marca <strong>"Allow SSH traffic from"</strong>.</li>
+            <li><strong>Almacenamiento:</strong> Aumenta el tamaño a <strong>20 GiB</strong>.</li>
+            <li>Haz clic en <strong>"Launch instance"</strong>.</li>
+        </ol>
+    </div>
+
+    <h3>Paso 3: Primera Conexión por SSH</h3>
+    <p>Copia la <strong>"Public IPv4 address"</strong> de tu instancia desde AWS.</p>
+    <div class="externo">
+        <strong><span class="emoji">💻</span> ACCIÓN EXTERNA: Terminal de tu Mac</strong>
+        <p>Asegura tu llave de acceso:</p>
+        <pre><code># Mover la llave a la carpeta segura de SSH
+mkdir -p ~/.ssh
+mv /ruta/a/tu/llave-rtl.pem ~/.ssh/
+
+# Darle permisos de "sólo lectura" para ti
+chmod 400 ~/.ssh/llave-rtl.pem</code></pre>
+        <p>Ahora, conéctate:</p>
+        <pre><code># Reemplaza la IP por la tuya
+ssh -i ~/.ssh/llave-rtl.pem ubuntu@TU_IP_PUBLICA</code></pre>
+    </div>
+
+    <h2 id="fase2">Fase 2: Blindando el Cohete (Seguridad y Puesta a Punto)</h2>
+    <p>Ya dentro de la terminal de tu VM, la haremos robusta y segura.</p>
+
+    <h3>Paso 1: Actualizar y Fortalecer</h3>
+    <div class="leccion">
+        <span class="emoji">💡</span> <strong>Lección Aprendida:</strong> Las máquinas `t2.micro` tienen poca RAM. Un "archivo de swap" usa el disco duro como RAM de emergencia para evitar que colapsen. Es nuestro seguro de vida.
+    </div>
+    <p>Con un solo súper-comando, actualizaremos el sistema y crearemos la memoria de emergencia:</p>
+    <pre><code>sudo apt update && sudo apt upgrade -y && sudo fallocate -l 2G /swapfile && sudo chmod 600 /swapfile && sudo mkswap /swapfile && sudo swapon /swapfile && echo '/swapfile none swap sw 0 0' | sudo tee -a /etc/fstab</code></pre>
+    
+    <h3>Paso 2: Unir el Servidor al Pasadizo Secreto</h3>
+    <p>Ahora instalaremos Tailscale en la VM y la uniremos a nuestra red privada.</p>
+    <pre><code>curl -fsSL https://tailscale.com/install.sh | sh && sudo tailscale up</code></pre>
+    <p>Copia el enlace que te da y autoriza la nueva máquina en tu navegador. Una vez hecho, averigua y anota la IP secreta de tu VM:</p>
+    <pre><code>tailscale ip -4</code></pre>
+
+    <h3>Paso 3: Sellar la Puerta Pública</h3>
+     <div class="externo">
+        <strong><span class="emoji">🌐</span> ACCIÓN EXTERNA: Consola de AWS</strong>
+        <p>Vuelve a la consola de AWS -> Security Groups -> Edit inbound rules -> **Borra** la regla del puerto 22. <strong class="importante">Tu conexión SSH actual se cortará. ¡Es normal y es una buena señal!</strong></p>
+    </div>
+    <p>Para volver a entrar, abre una nueva terminal en tu Mac y usa la IP de Tailscale que anotaste.</p>
+
+    <h2 id="fase3">Fase 3: El Motor Principal (LND en Modo Neutrino)</h2>
+    <p>Ahora instalamos LND y lo configuramos como un servicio automático y ligero.</p>
+    
+    <h3>Paso 1: Instalar LND</h3>
+    <p>Usaremos nuestro método probado para instalar LND desde el binario.</p>
+    <pre><code># Reemplaza la versión si hay una más nueva y estable (no rc, no alpha)
+LND_VERSION=0.19.0-beta && \
+wget https://github.com/lightningnetwork/lnd/releases/download/v${LND_VERSION}/lnd-linux-amd64-v${LND_VERSION}.tar.gz && \
+wget https://github.com/lightningnetwork/lnd/releases/download/v${LND_VERSION}/manifest-v${LND_VERSION}.txt && \
+grep "lnd-linux-amd64-v${LND_VERSION}.tar.gz" manifest-v${LND_VERSION}.txt | sha256sum -c - && \
+tar -xvf lnd-linux-amd64-v${LND_VERSION}.tar.gz && \
+sudo install -m 0755 -o root -g root -t /usr/local/bin lnd-linux-amd64-v${LND_VERSION}/* && \
+rm -rf lnd-linux-amd64-v${LND_VERSION}*</code></pre>
+
+    <h3>Paso 2: Configurar LND para Neutrino</h3>
+    <p>Crearemos su "manual de instrucciones".</p>
+    <pre><code>mkdir ~/.lnd
+nano ~/.lnd/lnd.conf</code></pre>
+    <p>Pega esta configuración. Es especial para un nodo ligero en Testnet.</p>
+    <pre><code>[Application Options]
+listen=0.0.0.0:9735
+rpclisten=0.0.0.0:10009
+
+[Bitcoin]
+bitcoin.active=true
+bitcoin.testnet=true
+bitcoin.node=neutrino
+
+[Neutrino]
+# Le damos una lista de 'tutores' de confianza para encontrar la red
+neutrino.connect=faucet.lightning.community
+neutrino.connect=testnet1.nodes.lightning.engineering
+neutrino.connect=testnet.lnolymp.us
+neutrino.connect=testnet.blixtwallet.com
+</code></pre>
+    
+    <h3>Paso 3: Automatizar LND con systemd</h3>
+    <p>Lo convertimos en un servicio profesional.</p>
+    <pre><code>sudo nano /etc/systemd/system/lnd.service</code></pre>
+    <p>Pega esto. Fíjate que ahora solo espera a que la red esté lista.</p>
+    <pre><code>[Unit]
+Description=LND Lightning Network Daemon (Neutrino Mode)
+Wants=tailscaled.service
+After=tailscaled.service
+
+[Service]
+ExecStart=/usr/local/bin/lnd
+User=ubuntu
+Group=ubuntu
+Restart=on-failure
+RestartSec=60
+
+[Install]
+WantedBy=multi-user.target</code></pre>
+    <p>Guarda y sal. Ahora, activa y arranca el servicio.</p>
+    <pre><code>sudo systemctl daemon-reload && sudo systemctl enable lnd.service && sudo systemctl start lnd.service</code></pre>
+    
+    <h2 id="fase4">Fase 4: La Cabina de Mando (Ride The Lightning - RTL)</h2>
+    <p>Con el motor calentando, instalamos nuestro tablero de control.</p>
+    
+    <h3>Paso 1: Instalar Herramientas Base (Node.js y PM2)</h3>
+    <p>RTL necesita su propio "taller".</p>
+    <pre><code># Instalar nvm, node y pm2
+curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash
+export NVM_DIR="$HOME/.nvm"
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+nvm install --lts
+npm install -g pm2</code></pre>
+    
+    <h3>Paso 2: Descargar y Ensamblar RTL</h3>
+    <p>Traemos las "piezas" de nuestro tablero de F1.</p>
+    <pre><code># Descargar el código de RTL
+git clone https://github.com/Ride-The-Lightning/RTL.git
+# Entrar a la nueva carpeta
+cd RTL
+# Instalar los componentes
+npm install --legacy-peer-deps</code></pre>
+
+    <h3>Paso 3: Configurar RTL</h3>
+    <p>Copiamos el archivo de ejemplo y lo editamos.</p>
+    <pre><code>cp Sample-RTL-Config.json RTL-Config.json
+nano RTL-Config.json</code></pre>
+    <p>Dentro de `nano`, borra todo y pega esta configuración limpia. **Recuerda cambiar la contraseña**.</p>
+    <pre><code>{
+  "multiPass": "tu-contraseña-super-segura",
+  "port": "3000",
+  "defaultNodeIndex": 1,
+  "SSO": { "rtlSSO": 0 },
+  "nodes": [
+    {
+      "index": 1,
+      "lnNode": "Mi Nodo Neutrino",
+      "lnImplementation": "LND",
+      "authentication": {
+        "macaroonPath": "/home/ubuntu/.lnd/data/chain/bitcoin/testnet"
+      },
+      "settings": {
+        "userPersona": "OPERATOR",
+        "themeMode": "NIGHT",
+        "themeColor": "PURPLE",
+        "lnServerUrl": "https://localhost:10009"
+      }
+    }
+  ]
+}</code></pre>
+    
+    <h2 id="fase5">Fase 5: El Lanzamiento y la Prueba de Fuego</h2>
+    <p>Estamos listos para el despegue.</p>
+    
+    <h3>Paso 1: Crear la Cartera LND (El Momento Clave)</h3>
+    <div class="leccion">
+        <span class="emoji">💡</span> <strong>Lección Aprendida:</strong> RTL no puede funcionar hasta que LND tenga una cartera creada, porque es ahí donde se generan los "pases de acceso" (`admin.macaroon`) que RTL necesita para comunicarse.
+    </div>
+    <p>Ejecuta el comando para crear la cartera de tu nodo de Testnet.</p>
+    <pre><code>lncli --network=testnet create</code></pre>
+    <p>Sigue el ritual: contraseña nueva, `no` a la semilla existente, y <strong class="importante">¡ANOTAR LAS 24 PALABRAS!</strong></p>
+    
+    <h3>Paso 2: Lanzar y Automatizar RTL</h3>
+    <p>Ahora sí, encendemos el tablero y le decimos a nuestro gerente `pm2` que lo supervise para siempre.</p>
+    <pre><code># Asegúrate de estar en la carpeta ~/RTL
+cd ~/RTL
+
+# Iniciar RTL con PM2
+pm2 start rtl.js --name RTL
+
+# Guardar la lista de procesos para que PM2 la recuerde
+pm2 save
+
+# Generar y ejecutar el comando de auto-arranque para PM2
+pm2 startup
+# (Recuerda copiar y ejecutar el comando 'sudo env...' que te dará como respuesta)
+</code></pre>
+
+    <h3>Paso 3: La Prueba de Fuego Definitiva</h3>
+    <p>Es hora de probar que nuestra creación es invencible.</p>
+    <pre><code>sudo reboot</code></pre>
+    <p>Espera 2-3 minutos, conéctate de nuevo por Tailscale y verifica que todo esté online:</p>
+    <pre><code>sudo systemctl status lnd
+pm2 status</code></pre>
+    <p>¡Ambos deberían estar activos y en verde!</p>
+    
+    <h3>Paso 4: Acceder a tu Tablero de Mando</h3>
+    <div class="externo">
+        <strong><span class="emoji">🌐</span> ACCIÓN EXTERNA: Navegador Web</strong>
+        <p>Abre tu navegador, ve a la dirección de Tailscale de tu VM en el puerto 3000:</p>
+        <p><strong><code>http://TU_IP_DE_TAILSCALE:3000</code></strong></p>
+        <p>Inicia sesión con la contraseña que pusiste en `RTL-Config.json`. ¡Bienvenido a tu tablero de F1!</p>
+    </div>
+
+    <h2 id="conclusion">Conclusión: Eres el Comandante</h2>
+    <p>¡FELICIDADES! Has construido un sistema complejo, ligero y profesional desde cero. Has depurado errores, aprendido conceptos de redes, seguridad y sistemas, y has demostrado una perseverancia increíble. Ya no eres un principiante, eres un operador de nodo con experiencia real.</p>
+    <p>El viaje del aprendizaje nunca termina. Ahora puedes explorar cómo fondear tu cartera, abrir canales y hacer tus primeras transacciones. El universo es tuyo.</p>
+    <p>Ha sido un honor ser tu copiloto. El mérito es todo tuyo. ¡Disfruta de tu nodo! <span class="emoji">🧡</span></p>
+
+</body>
+</html>
