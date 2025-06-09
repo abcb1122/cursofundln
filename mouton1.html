@@ -142,7 +142,7 @@
             margin-top: 0;
             font-size: 1.8em;
             text-align: center;
-         }
+        }
 
         /* --- MODO OSCURO (DINÁMICO) --- */
         @media (prefers-color-scheme: dark) {
@@ -171,238 +171,238 @@
 </head>
 <body>
     <div class="container">
-        <h1>La Ruta de tu Plata: La Guía Definitiva (y sin Compliques) de la Red Lightning</h1>
+        <h1>La Ruta de Tu Plata: La Guía Definitiva de la Red Lightning</h1>
         <div class="abstract">
-            <p><strong>En pocas palabras:</strong> Este documento le va a explicar, sin enredos y como para parceros, qué es y cómo camella la Red Lightning de Bitcoin. Vamos a desmenuzar toda la vuelta, desde cómo se arma un canal hasta cómo se manda plata por toda la red, usando ejemplos sencillos para que cualquiera la pille, así no sepa nada del tema. ¡Póngase cómodo que este cuento se pone bueno!</p>
+            <p><strong>En resumen:</strong> Este documento te explicará, de forma clara y sencilla, qué es y cómo funciona la Red Lightning de Bitcoin. Abordaremos todos los detalles, desde la creación de un canal hasta el envío de fondos a través de la red, usando ejemplos fáciles de entender para cualquier persona, incluso sin conocimientos previos. ¡Prepárate, que este tema se pone interesante!</p>
         </div>
 
         <div class="toc">
             <h2>Índice de Contenidos</h2>
             <ul>
-                <li><a href="#cap1">1.0 Arranquemos: Armando un Canal (La Caja Fuerte de los Parceros)</a></li>
-                <li><a href="#cap2">2.0 La Vida en el Canal: Actualizando las Cuentas</a></li>
-                <li><a href="#cap3">3.0 Conectando la Red: El Viaje de la Plata</a></li>
-                <li><a href="#cap4">4.0 El Mensajero Secreto: La Magia del Paquete Sphinx</a></li>
-                <li><a href="#cap5">5.0 El Final del Camino: Cerrando el Chuzo</a></li>
-                <li><a href="#cap6">6.0 Lo que se Viene: Canales Invisibles con Taproot</a></li>
-                <li><a href="#cap7">7.0 La Privacidad de tu Billetera: ¡Que no sean Sapos!</a></li>
-                <li><a href="#glosario">8.0 Glosario para no Perderse</a></li>
+                <li><a href="#cap1">1.0 Inicia Aquí: Creando un Canal (Tu Bóveda Segura)</a></li>
+                <li><a href="#cap2">2.0 La Operación del Canal: Actualizando los Saldos</a></li>
+                <li><a href="#cap3">3.0 Conectando la Red: El Trayecto de los Fondos</a></li>
+                <li><a href="#cap4">4.0 El Mensajero Oculto: La Magia del Paquete Sphinx</a></li>
+                <li><a href="#cap5">5.0 El Fin del Canal: Cerrando la Conexión</a></li>
+                <li><a href="#cap6">6.0 Lo que Viene: Canales Invisibles con Taproot</a></li>
+                <li><a href="#cap7">7.0 La Privacidad de Tu Billetera: ¡Evita los Entrometidos!</a></li>
+                <li><a href="#glosario">8.0 Glosario para Entender Todo</a></li>
             </ul>
         </div>
 
         <section id="cap1">
-            <h2>1.0 Arranquemos: Armando un Canal (La Caja Fuerte de los Parceros)</h2>
-            <p>Bitcoin es una nota, pero su red principal (la <span class="term">Blockchain</span>) a veces es como un trancón en hora pico: demorado y costoso si solo quieres pagar un tinto. La <span class="term">Red Lightning</span> es la solución: una red de "carreteras y atajos" que se montan sobre la autopista principal para mover la plata de una, y casi regalado.</p>
-            <p>La pieza clave de esta vuelta es el <strong>canal de pago</strong>.</p>
+            <h2>1.0 Inicia Aquí: Creando un Canal (Tu Bóveda Segura)</h2>
+            <p>Bitcoin es increíble, pero su red principal (la <span class="term">Blockchain</span>) a veces es como un trancón en hora pico: lenta y costosa si solo quieres pagar un café. La <span class="term">Red Lightning</span> es la solución: una red de "caminos rápidos" construida sobre la red principal para mover fondos de forma instantánea y casi sin costo.</p>
+            <p>La pieza fundamental de este sistema es el <strong>canal de pago</strong>.</p>
             
-            <h4>Modelo Conceptual: La Caja Fuerte de los Parceros</h4>
+            <h4>Modelo Conceptual: Tu Bóveda Segura con un Compañero</h4>
             <blockquote>
-                <p>Imagínate un canal como una caja fuerte digital entre dos parceros, digamos Alicia y Beto. Para sacar cualquier cosa de esa caja, se necesitan las dos llaves, la de Alicia y la de Beto. Con una sola no se puede hacer nada.</p>
+                <p>Imagina un canal como una bóveda digital compartida entre dos personas, por ejemplo, Alicia y Beto. Para sacar cualquier cosa de esa bóveda, se necesitan las dos llaves, la de Alicia y la de Beto. Con una sola llave no es posible hacer nada.</p>
             </blockquote>
 
-            <h3>1.1 El Chicharrón: ¿Y si tu parcero se pierde?</h3>
-            <p>Alicia quiere abrir la caja fuerte con Beto y ella va a meter la plata inicial. Si ella simplemente arma la caja y mete la plata, ¿qué pasa si Beto se vuela y no vuelve a contestar? La plata de Alicia quedaría ahí guardada para siempre, porque para sacarla necesita la llave de Beto. ¡Qué chicharrón tan berraco!</p>
+            <h3>1.1 El Reto: ¿Qué Pasa si Tu Compañero Desaparece?</h3>
+            <p>Alicia quiere abrir la bóveda con Beto e inicialmente depositará fondos. Si simplemente abre la bóveda y deposita el dinero, ¿qué sucede si Beto desaparece y no responde más? El dinero de Alicia quedaría bloqueado indefinidamente, ya que necesita la llave de Beto para retirarlo. ¡Sería un problema serio!</p>
             
-            <h3>1.2 La Solución: El Paso a Paso para no Salir Tumbado</h3>
-            <p>Para que nadie salga tumbado, los programas de Alicia y Beto hacen un "tire y afloje" muy bien planeado, un paso a paso para que todo sea seguro.</p>
+            <h3>1.2 La Solución: Un Proceso Paso a Paso para Evitar Engaños</h3>
+            <p>Para asegurar que nadie sea perjudicado, los programas de Alicia y Beto ejecutan un "intercambio" muy bien planeado, un proceso paso a paso que garantiza la seguridad.</p>
             <ol>
-                <li><strong>La Propuesta (`open_channel`):</strong> Alicia le dice a Beto: "Parce, abramos un canal con esta plata. Esta es mi llave".</li>
-                <li><strong>La Aceptación (`accept_channel`):</strong> Beto le contesta: "¡De una! Esta es mi llave". Ahora ambos saben qué se necesita.</li>
-                <li><strong>El Contrato de Respaldo (`funding_created`):</strong> ¡Pilas con este paso! Alicia prepara la caja fuerte, pero <em>todavía no la cierra</em>. Primero, le pasa a Beto un "contrato de emergencia" que dice "si algo raro pasa, toda la plata se le devuelve a Alicia" y le pide que se lo firme.</li>
-                <li><strong>La Firma Clave (`funding_signed`):</strong> Beto ve que el contrato es legal, lo firma y se lo devuelve. ¡Ahora Alicia tiene un respaldo firmado!</li>
-                <li><strong>¡A lo que vinimos!:</strong> Con ese respaldo en el bolsillo, Alicia ahora sí cierra la caja fuerte y la registra en la red de Bitcoin.</li>
-                <li><strong>¡Todo Bien! (`channel_ready`):</strong> Ambos ven que la caja ya quedó registrada y se mandan un último mensaje: "¡Listo, parcero!". El canal está abierto, pero es un secreto entre ellos.</li>
+                <li><strong>La Propuesta (`open_channel`):</strong> Alicia le propone a Beto: "Abramos un canal con estos fondos. Esta es mi clave".</li>
+                <li><strong>La Aceptación (`accept_channel`):</strong> Beto responde: "¡De acuerdo! Esta es mi clave". Ahora ambos conocen lo que se requiere.</li>
+                <li><strong>El Contrato de Respaldo (`funding_created`):</strong> ¡Atención a este paso! Alicia prepara la bóveda, pero <em>aún no la cierra</em>. Primero, le entrega a Beto un "contrato de emergencia" que establece que "si ocurre algo inusual, todos los fondos se devuelven a Alicia", y le pide que lo firme.</li>
+                <li><strong>La Firma Clave (`funding_signed`):</strong> Beto verifica que el contrato es válido, lo firma y se lo devuelve. ¡Ahora Alicia tiene un respaldo firmado!</li>
+                <li><strong>A lo que Vinimos:</strong> Con ese respaldo en su poder, Alicia ahora sí cierra la bóveda y la registra en la red de Bitcoin.</li>
+                <li><strong>¡Listo! (`channel_ready`):</strong> Ambos confirman que la bóveda ha sido registrada y se envían un último mensaje: "¡Canal listo!". El canal está abierto, pero es un acuerdo privado entre ellos.</li>
             </ol>
             
-            <h3>1.3 Haciéndolo Público: Contándole a todo el mundo</h3>
-            <p>Si quieren ganar platica ayudando a mover pagos de otros, tienen que hacer público su canal. Es como poner un aviso en el periódico.</p>
+            <h3>1.3 Haciénodolo Público: Notificando a Toda la Red</h3>
+            <p>Si desean obtener ganancias ayudando a procesar pagos de otros, deben hacer público su canal. Es como publicar un aviso en un directorio.</p>
             <h4>Modelo Conceptual: El Anuncio Clasificado</h4>
             <blockquote>
-                <p>Tienen que publicar un "anuncio clasificado" (<span class="term">channel_announcement</span>) firmado por los dos. Este anuncio tiene cuatro firmas para probar que los dueños de la plata son los mismos dueños de las identidades en la red. Así, todo el mundo sabe que el canal es serio y no una farsa.</p>
+                <p>Deben publicar un "anuncio clasificado" (<span class="term">channel_announcement</span>) firmado por ambos. Este anuncio incluye cuatro firmas para verificar que los propietarios de los fondos son los mismos que las identidades en la red. De esta manera, todos saben que el canal es legítimo y no un fraude.</p>
             </blockquote>
         </section>
 
         <section id="cap2">
-            <h2>2.0 La Vida en el Canal: Actualizando las Cuentas</h2>
-            <p>Una vez la caja fuerte está abierta, ¿cómo se pasan la plata? No mueven monedas, sino que actualizan un "libro de cuentas".</p>
+            <h2>2.0 La Operación del Canal: Actualizando los Saldos</h2>
+            <p>Una vez que la bóveda está abierta, ¿cómo se transfieren los fondos? No se mueven monedas físicamente, sino que se actualiza un "libro de cuentas".</p>
             <h4>Modelo Conceptual: El Borrador Compartido</h4>
             <blockquote>
-                <p>Piensa en el estado del canal como un borrador en el que ambos "camellan" (trabajan). Cada pago no es un borrón, sino una nueva versión del documento con los saldos actualizados. Las versiones viejas se archivan y se marcan para que no se puedan usar más.</p>
+                <p>Piensa en el estado del canal como un documento borrador en el que ambos "trabajan" (colaboran). Cada pago no es una nueva anulación, sino una nueva versión del documento con los saldos actualizados. Las versiones anteriores se archivan y se marcan para que no puedan ser usadas de nuevo.</p>
             </blockquote>
 
-            <h3>2.1 El Plan de Reparto y el Castigo por si las Moscas</h3>
-            <p>Para cada estado, hay dos versiones del "plan de reparto", una para Alicia y otra para Beto. Esto es para saber a quién echarle la culpa si alguien se quiere pasar de vivo. La regla de oro es: <strong>en tu propia versión del plan, si quieres sacar tu plata a las malas, te toca esperar un ratico</strong>. Ese tiempo de espera le da chance a tu parcero de pillarte si estás usando un plan viejo.</p>
+            <h3>2.1 El Plan de Reparto y la Penalización por Incumplimiento</h3>
+            <p>Para cada estado, existen dos versiones del "plan de reparto", una para Alicia y otra para Beto. Esto es para identificar responsabilidades si alguien intenta actuar de mala fe. La regla fundamental es: **en tu propia versión del plan, si deseas retirar tus fondos de forma forzosa, debes esperar un periodo de tiempo**. Este tiempo de espera permite que tu compañero te detecte si intentas usar un plan desactualizado.</p>
             
-            <h3>2.2 La Llave de Castigo de Dos Mitades</h3>
-            <p>¿Cómo se evita que Alicia use un plan viejo donde tenía más plata? Dándole a Beto el poder para castigarla. Esto se logra con la <span class="term">Clave de Revocación</span>.</p>
-             <h4>Modelo Conceptual: La Llave de Castigo de Dos Mitades</h4>
+            <h3>2.2 La Clave de Penalización de Dos Mitades</h3>
+            <p>¿Cómo se evita que Alicia use un plan antiguo donde tenía más fondos? Dándole a Beto el poder de penalizarla. Esto se logra con la <span class="term">Clave de Revocación</span>.</p>
+            <h4>Modelo Conceptual: La Clave de Penalización de Dos Mitades</h4>
             <blockquote>
-                <p>La "cláusula de castigo" de cada plan se activa con una llave que se arma con dos mitades, una de Alicia y una de Beto. Cuando acuerdan una nueva versión del plan, Alicia le da a Beto <em>su mitad de la llave de la versión vieja</em>. Ahora Beto tiene las dos mitades. Si Alicia intenta usar esa versión vieja, Beto arma la llave completa y ¡zas! se queda con toda la plata de Alicia de ese plan. Una bobada intentar hacer trampa.</p>
+                <p>La "cláusula de penalización" de cada plan se activa con una clave que se construye con dos mitades, una de Alicia y una de Beto. Cuando acuerdan una nueva versión del plan, Alicia le entrega a Beto <em>su mitad de la clave de la versión antigua</em>. Ahora Beto tiene las dos mitades. Si Alicia intenta usar esa versión antigua, Beto construye la clave completa y ¡así! se queda con todos los fondos de Alicia de ese plan. Es inútil intentar hacer trampa.</p>
             </blockquote>
         </section>
 
         <section id="cap3">
-            <h2>3.0 Conectando la Red: El Viaje de la Plata</h2>
-            <p>Lo más bacano de Lightning es poderle pagar a alguien con quien no tienes un canal directo, mandando la plata a través de otros parceros.</p>
+            <h2>3.0 Conectando la Red: El Trayecto de los Fondos</h2>
+            <p>Lo más interesante de Lightning es la capacidad de pagar a alguien con quien no tienes un canal directo, enviando los fondos a través de otros intermediarios.</p>
             <h4>Modelo Conceptual: El Viaje por Carretera</h4>
             <blockquote>
-                <p>Mandar un pago por la red es como planear un viaje. Tu billetera es el GPS: tiene que buscar la mejor ruta, calcular los peajes y preparar las instrucciones para cada parada.</p>
+                <p>Enviar un pago a través de la red es como planear un viaje. Tu billetera es el GPS: debe buscar la mejor ruta, calcular las tarifas y preparar las instrucciones para cada parada.</p>
             </blockquote>
 
-            <h3>3.1 El Paquete con Candado (HTLC)</h3>
-            <p>La vuelta que hace esto posible es el <span class="term">HTLC (Contrato Bloqueado por Hash y Tiempo)</span>.</p>
-            <h4>Modelo Conceptual: El Paquete con Candado de Contraseña y Cronómetro</h4>
+            <h3>3.1 El Paquete Bloqueado (HTLC)</h3>
+            <p>El mecanismo que hace esto posible es el <span class="term">HTLC (Contrato Bloqueado por Hash y Tiempo)</span>.</p>
+            <h4>Modelo Conceptual: El Paquete con Contraseña y Temporizador</h4>
             <blockquote>
-                <p>Un HTLC es un paquete con un candado bien verraco que se abre de dos formas:
+                <p>Un HTLC es un paquete con un bloqueo especial que se abre de dos maneras:
                 <ol>
-                    <li><strong>Con la Contraseña Secreta:</strong> Si tienes la clave (<span class="term">preimage</span>), abres el paquete y reclamas la plata.</li>
-                    <li><strong>Con el Tiempo:</strong> Si nadie da la clave antes de que se acabe el tiempo, el paquete se devuelve solito al que lo mandó.</li>
+                    <li><strong>Con la Contraseña Secreta:</strong> Si posees la clave (<span class="term">preimage</span>), abres el paquete y reclamas los fondos.</li>
+                    <li><strong>Con el Tiempo:</strong> Si nadie proporciona la clave antes de que expire el tiempo, el paquete se devuelve automáticamente a quien lo envió.</li>
                 </ol>
                 </p>
             </blockquote>
             
             <h3>3.2 El Proceso de Entrega</h3>
-            <p>Alicia le pasa un HTLC a Beto, Beto a Carlos, y Carlos a Diana. Diana, que tiene la contraseña, abre su paquete y cobra, revelándole la contraseña a Carlos. Carlos ahora la usa para cobrarle a Beto, y Beto a Alicia. Es como un dominó al revés. Si algo falla, los cronómetros se activan y a nadie se le pierde un peso. O todo funciona, o no pasa nada.</p>
+            <p>Alicia transfiere un HTLC a Beto, Beto a Carlos, y Carlos a Diana. Diana, quien tiene la contraseña, abre su paquete y cobra, revelando la contraseña a Carlos. Carlos ahora la utiliza para cobrarle a Beto, y Beto a Alicia. Es como un efecto dominó inverso. Si algo falla, los temporizadores se activan y nadie pierde sus fondos. O todo funciona, o no ocurre nada.</p>
         </section>
         
         <section id="cap4">
-            <h2>4.0 El Mensajero Secreto: La Magia del Paquete Sphinx</h2>
-            <p>Para darle las instrucciones a cada parcero en la ruta sin que nadie más se entere del plan completo, Alicia usa un "Paquete Cebolla".</p>
+            <h2>4.0 El Mensajero Oculto: La Magia del Paquete Sphinx</h2>
+            <p>Para entregar instrucciones a cada intermediario en la ruta sin que nadie más conozca el plan completo, Alicia usa un "Paquete Cebolla".</p>
             <h4>Modelo Conceptual: La Matrioska Criptográfica</h4>
             <blockquote>
-                <p>El paquete final, llamado <span class="term">Paquete Sphinx</span>, es como una matrioska (esas muñecas rusas que van una dentro de la otra). Cada intermediario solo abre su propia muñeca, encuentra sus instrucciones y la siguiente muñeca más pequeña. No tiene ni idea de cuántas más hay, quién mandó el paquete o a dónde va.</p>
+                <p>El paquete final, llamado <span class="term">Paquete Sphinx</span>, es como una matrioska (esas muñecas rusas que encajan una dentro de otra). Cada intermediario solo abre su propia capa, encuentra sus instrucciones y la siguiente muñeca más pequeña. No tiene idea de cuántas capas más hay, quién envió el paquete o su destino final.</p>
             </blockquote>
             
-            <h3>4.1 Las Herramientas del Mago</h3>
-            <p>Para construir esta matrioska mágica, se usan varias herramientas:</p>
+            <h3>4.1 Las Herramientas de Criptografía</h3>
+            <p>Para construir esta matrioska segura, se utilizan varias herramientas:</p>
             <ul>
-                <li><strong>El Secreto de la Pintura (Diffie-Hellman):</strong> Permite que Alicia y cada intermediario creen un "color secreto" que solo ellos conocen.</li>
-                <li><strong>La Máscara Mágica (XOR):</strong> Una forma de encriptar las instrucciones de cada capa de la cebolla.</li>
-                <li><strong>Los Nombres en Clave (Claves Efímeras):</strong> Alicia usa una identidad falsa para cada salto.</li>
+                <li><strong>El Secreto Compartido (Diffie-Hellman):</strong> Permite que Alicia y cada intermediario generen un "secreto compartido" que solo ellos conocen.</li>
+                <li><strong>La Máscara Criptográfica (XOR):</strong> Una forma de cifrar las instrucciones de cada capa de la cebolla.</li>
+                <li><strong>Las Claves Temporales (Claves Efímeras):</strong> Alicia usa una identidad falsa para cada salto en la ruta.</li>
             </ul>
-             <p>Alicia envuelve la cebolla de atrás para adelante, añadiendo un "relleno inteligente" que hace que las firmas digitales funcionen perfecto en cada paso. El paquete siempre mide lo mismo, así que nadie puede adivinar su posición en la ruta. ¡Pura magia!</p>
+            <p>Alicia construye el paquete cebolla desde el destino hacia el origen, añadiendo un "relleno inteligente" que garantiza que las firmas digitales funcionen perfectamente en cada paso. El tamaño del paquete siempre es el mismo, por lo que nadie puede deducir su posición en la ruta. ¡Pura magia!</p>
         </section>
 
         <section id="cap5">
-            <h2>5.0 El Final del Camino: Cerrando el Chuzo</h2>
-            <p>Todo canal tiene su fin. Veamos cómo se "jubila".</p>
+            <h2>5.0 El Fin del Canal: Cerrando la Conexión</h2>
+            <p>Todo canal tiene su final. Veamos cómo se "termina".</p>
             
             <h3>5.1 El Final Amistoso: Cierre Cooperativo</h3>
-            <p>Es cuando ambos parceros deciden cerrar el canal de mutuo acuerdo.</p>
-             <h4>Modelo Conceptual: Finalizar el "Camello"</h4>
+            <p>Esto ocurre cuando ambos participantes deciden cerrar el canal de mutuo acuerdo.</p>
+            <h4>Modelo Conceptual: Finalizar la Colaboración</h4>
             <blockquote>
-                <p>Es como decidir que el trabajo que estaban haciendo juntos ya terminó.</p>
+                <p>Es como decidir que el trabajo que estaban realizando juntos ha concluido.</p>
             </blockquote>
             <ol>
-                <li><strong>Parar la vuelta (`shutdown`):</strong> Uno dice "listo, no más pagos nuevos".</li>
-                <li><strong>Ponerse de acuerdo con la plata (`closing_signed`):</strong> Negocian la pequeña comisión que pagarán a la red por el cierre. Se mandan propuestas firmadas hasta que están de acuerdo.</li>
-                <li><strong>Cierre Final:</strong> Con todo acordado y firmado por ambos, cualquiera puede mandar la transacción final a la red de Bitcoin. La plata se reparte y el canal se cierra.</li>
+                <li><strong>Notificar el Cierre (`shutdown`):</strong> Uno de los participantes indica "listo, no más pagos nuevos".</li>
+                <li><strong>Acordar los Fondos (`closing_signed`):</strong> Negocian la pequeña comisión que pagarán a la red por el cierre. Se intercambian propuestas firmadas hasta que llegan a un acuerdo.</li>
+                <li><strong>Cierre Final:</strong> Con todo acordado y firmado por ambos, cualquiera de ellos puede enviar la transacción final a la red de Bitcoin. Los fondos se distribuyen y el canal se cierra.</li>
             </ol>
-            <p>Aunque hayan hecho miles de pagos, el mundo exterior solo ve la transacción de apertura y la de cierre.</p>
+            <p>Aunque se hayan realizado miles de pagos, el mundo exterior solo ve la transacción de apertura y la de cierre del canal.</p>
             
-            <h3>5.2 Cuando toca a las Malas: Cierre Forzoso</h3>
-            <p>Si un parcero desaparece, el otro no queda embalado. Puede publicar el último "plan de reparto" firmado para forzar el cierre. El sistema de castigos asegura que todo sea justo.</p>
+            <h3>5.2 Cuando es Necesario: Cierre Forzoso</h3>
+            <p>Si un participante desaparece, el otro no queda desprotegido. Puede publicar la última versión firmada del "plan de reparto" para forzar el cierre. El sistema de penalizaciones asegura que todo sea justo.</p>
         </section>
         
         <section id="cap6">
-            <h2>6.0 Lo que se Viene: Canales Invisibles con Taproot</h2>
-            <p>Una mejora de Bitcoin llamada <span class="term">Taproot</span> está cambiando el juego, haciendo los canales de Lightning más privados y eficientes.</p>
+            <h2>6.0 Lo que Viene: Canales Invisibles con Taproot</h2>
+            <p>Una mejora de Bitcoin llamada <span class="term">Taproot</span> está transformando el panorama, haciendo que los canales de Lightning sean más privados y eficientes.</p>
             
-            <h3>6.1 Canales Fantasma</h3>
-            <p>Con Taproot y otra tecnología llamada <span class="term">MuSig2</span>, la transacción que abre y cierra un canal se ve idéntica a una transacción normal de una sola persona. **El canal se vuelve invisible en la Blockchain.** ¡Un avance brutal para la privacidad!</p>
+            <h3>6.1 Canales Privados</h3>
+            <p>Con Taproot y otra tecnología llamada <span class="term">MuSig2</span>, la transacción que abre y cierra un canal se ve idéntica a una transacción normal de una sola persona. **El canal se vuelve invisible en la Blockchain.** ¡Un avance significativo para la privacidad!</p>
             <h4>Modelo Conceptual: El Contrato con Cláusula Secreta</h4>
             <blockquote>
-                <p>Taproot es como un contrato con una "puerta principal" para los casos fáciles y "pasadizos secretos" con reglas para los chicharrones. Los pasadizos solo se revelan si toca usarlos.</p>
+                <p>Taproot es como un contrato con una "puerta principal" para los casos sencillos y "pasadizos secretos" con reglas para las situaciones complejas. Los pasadizos solo se revelan si es necesario utilizarlos.</p>
             </blockquote>
         </section>
 
         <section id="cap7">
-            <h2>7.0 La Privacidad de tu Billetera: ¡Que no sean Sapos!</h2>
-            <p>¿Cómo hace tu billetera en el celular para saber si te llegó plata, sin descargar toda esa información de Bitcoin y sin contarle tu vida a un servidor?</p>
+            <h2>7.0 La Privacidad de Tu Billetera: ¡Evita los Entrometidos!</h2>
+            <p>¿Cómo hace tu billetera móvil para saber si te llegó dinero, sin descargar toda la información de Bitcoin y sin revelar tu actividad a un servidor?</p>
             <h4>Modelo Conceptual: El Detective y el Bibliotecario</h4>
             <blockquote>
-                <p>Tu billetera es un detective. La Blockchain es una biblioteca. Un servidor es el bibliotecario. El método viejo era muy "sapo": el detective le daba su lista de sospechosos al bibliotecario, quien se enteraba de todo.</p>
+                <p>Tu billetera es un detective. La Blockchain es una biblioteca. Un servidor es el bibliotecario. El método antiguo era muy "intrusivo": el detective le entregaba su lista de "sospechosos" al bibliotecario, quien se enteraba de todo.</p>
             </blockquote>
-             <p>El método nuevo es más astuto: <span class="term">Filtros Compactos de Bloque</span>. Ahora, el bibliotecario hace un "resumen" codificado de cada libro nuevo. El detective descarga esos resúmenes y los revisa en privado en su oficina. Mucho más seguro y privado.</p>
+            <p>El método nuevo es más astuto: <span class="term">Filtros Compactos de Bloque</span>. Ahora, el bibliotecario crea un "resumen" codificado de cada nuevo libro. El detective descarga esos resúmenes y los revisa de forma privada en su oficina. Mucho más seguro y con mayor privacidad.</p>
         </section>
 
         <section id="glosario">
-            <h2 id="glosario">8.0 Glosario para no Perderse</h2>
+            <h2 id="glosario">8.0 Glosario para Entender Todo</h2>
             <dl class="glossary">
                 <dt>Anchor Outputs (Salidas de Ancla)</dt>
-                <dd>Unas moneditas extra en el plan de reparto para poder pagar más comisión a los mineros si la red está en un trancón, y así la transacción no se quede embalada.</dd>
+                <dd>Pequeñas cantidades extra de fondos en el plan de reparto para poder pagar más comisión a los mineros si la red está congestionada, y así la transacción no se quede atascada.</dd>
 
                 <dt>Anuncio de Canal (Channel Announcement)</dt>
-                <dd>El "anuncio clasificado" que se publica para que todo el mundo sepa que un canal existe y se puede usar para mover plata.</dd>
+                <dd>El "aviso público" que se publica para que toda la red sepa que un canal existe y se puede usar para enviar fondos.</dd>
 
                 <dt>Bitcoin</dt>
-                <dd>La criptomoneda original. La Red Lightning es una mejora que corre encima de ella para hacer pagos rápidos.</dd>
+                <dd>La criptomoneda original. La Red Lightning es una mejora que opera sobre ella para facilitar pagos rápidos.</dd>
 
                 <dt>Blockchain</dt>
-                <dd>El libro de contabilidad público de Bitcoin, donde queda registrada toda transacción confirmada. La "autopista principal".</dd>
+                <dd>El libro de contabilidad público de Bitcoin, donde se registra toda transacción confirmada. Es la "autopista principal".</dd>
                 
                 <dt>Camellar</dt>
-                <dd>(Expresión colombiana) Trabajar. Usado en la analogía del "Documento Compartido" para describir cómo los dos participantes trabajan sobre el estado del canal.</dd>
+                <dd>(Expresión coloquial colombiana) Trabajar. Usado en la analogía del "Documento Compartido" para describir cómo los dos participantes interactúan sobre el estado del canal.</dd>
                 
                 <dt>Canal de Pago (Payment Channel)</dt>
-                <dd>La "caja fuerte de los parceros". El acuerdo base en Lightning que permite a dos personas hacerse pagos ilimitados entre sí.</dd>
+                <dd>La "bóveda segura entre compañeros". El acuerdo base en Lightning que permite a dos personas realizar pagos ilimitados entre sí.</dd>
                 
                 <dt>Chicharrón</dt>
-                <dd>(Expresión colombiana) Un problema complicado o una situación difícil.</dd>
+                <dd>(Expresión coloquial colombiana) Un problema complejo o una situación difícil.</dd>
 
                 <dt>Clave de Revocación (Revocation Key)</dt>
-                <dd>La "llave de castigo". La clave que se usa para penalizar al parcero que intente pasarse de vivo usando un estado viejo del canal.</dd>
+                <dd>La "clave de penalización". La clave que se usa para penalizar al compañero que intente actuar de mala fe usando un estado antiguo del canal.</dd>
                 
                 <dt>Commitment Transaction (Transacción de Compromiso)</dt>
-                <dd>El "Plan de Reparto". Una transacción que refleja los saldos actuales del canal. Es el respaldo que se usa si toca cerrar "a las malas".</dd>
+                <dd>El "Plan de Reparto". Una transacción que refleja los saldos actuales del canal. Es el respaldo que se usa si es necesario cerrar el canal de forma "forzada".</dd>
                 
                 <dt>Hash</dt>
-                <dd>Una "huella digital" de cualquier dato. Es el "candado" del HTLC.</dd>
+                <dd>Una "huella digital" única de cualquier dato. Es el "candado" del HTLC.</dd>
                 
                 <dt>HTLC (Hashed Time-Locked Contract)</dt>
-                <dd>El "Paquete con Candado de Contraseña y Cronómetro". El contrato que permite los pagos a través de varios intermediarios de forma segura.</dd>
+                <dd>El "Paquete con Contraseña y Temporizador". El contrato que permite los pagos a través de varios intermediarios de forma segura.</dd>
                 
                 <dt>Irrevocablemente Comprometido</dt>
-                <dd>Un pago o cambio de estado que ya ha sido confirmado y asegurado por ambas partes. Ya no hay vuelta atrás.</dd>
+                <dd>Un pago o cambio de estado que ya ha sido confirmado y asegurado por ambas partes. Ya no se puede revertir.</dd>
 
                 <dt>MuSig2</dt>
-                <dd>Una tecnología para hacer "firmas maestras conjuntas", haciendo que la firma de varias personas parezca la de una sola.</dd>
+                <dd>Una tecnología para crear "firmas maestras conjuntas", haciendo que la firma de varias personas parezca la de una sola.</dd>
 
                 <dt>Nodo (Node)</dt>
-                <dd>Un participante en la Red Lightning. Un computador o servidor que está conectado a la red y ayuda a mover la plata.</dd>
+                <dd>Un participante en la Red Lightning. Una computadora o servidor conectado a la red que ayuda a procesar pagos.</dd>
 
                 <dt>Paquete Cebolla (Onion Packet)</dt>
-                <dd>El paquete de instrucciones encriptado en capas (como una cebolla o una matrioska) para guiar un pago por la red de forma privada.</dd>
+                <dd>El paquete de instrucciones cifrado en capas (como una cebolla o una matrioska) para guiar un pago por la red de forma privada.</dd>
                 
                 <dt>Parce</dt>
-                <dd>(Expresión colombiana) Amigo, compañero.</dd>
+                <dd>(Expresión coloquial colombiana) Amigo, compañero.</dd>
                 
                 <dt>Plata</dt>
-                <dd>(Expresión en Colombia y Latam) Dinero.</dd>
+                <dd>(Expresión común en Colombia y Latam) Dinero.</dd>
 
                 <dt>Preimage</dt>
-                <dd>La "contraseña secreta" del HTLC. Revelarla es la prueba de que se recibió el pago.</dd>
+                <dd>La "contraseña secreta" del HTLC. Revelarla es la prueba de que el pago fue recibido.</dd>
 
                 <dt>Red Lightning</dt>
-                <dd>La red de "carreteras y atajos" sobre Bitcoin para hacer pagos de una.</dd>
+                <dd>La red de "caminos rápidos" sobre Bitcoin para realizar pagos instantáneos.</dd>
                 
                 <dt>Sapo</dt>
-                <dd>(Expresión colombiana) Chismoso, delator, que se entera de lo que no le importa. Usado para describir la falta de privacidad del método antiguo de las billeteras.</dd>
+                <dd>(Expresión coloquial colombiana) Entrometido, delator, que se interesa en asuntos ajenos. Usado para describir la falta de privacidad del método antiguo de las billeteras.</dd>
                 
                 <dt>Sphinx</dt>
-                <dd>El nombre técnico del protocolo para construir los "paquetes cebolla" de forma súper segura y privada.</dd>
+                <dd>El nombre técnico del protocolo para construir los "paquetes cebolla" de forma extremadamente segura y privada.</dd>
                 
                 <dt>Taproot</dt>
-                <dd>Una mejora brutal de Bitcoin que permite los "canales fantasma" y hace todo más privado y eficiente.</dd>
+                <dd>Una mejora significativa de Bitcoin que habilita los "canales privados" y hace todo más eficiente y privado.</dd>
                 
                 <dt>Tinto</dt>
                 <dd>(Expresión colombiana) Un café negro pequeño.</dd>
 
                 <dt>Tumbado</dt>
-                <dd>(Expresión colombiana) Estafado, robado.</dd>
+                <dd>(Expresión coloquial colombiana) Estafado, engañado.</dd>
 
                 <dt>Verraco</dt>
-                <dd>(Expresión colombiana) Fuerte, difícil, impresionante.</dd>
+                <dd>(Expresión coloquial colombiana) Fuerte, difícil, impresionante.</dd>
 
             </dl>
         </section>
