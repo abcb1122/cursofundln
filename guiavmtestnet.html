@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Guía de Implementación: Nodo Lightning LND (Neutrino) con UI RTL</title>
+    <style>
+        body {
+            font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            line-height: 1.7;
+            color: #212529;
+            max-width: 850px;
+            margin: 20px auto;
+            padding: 30px;
+            background-color: #ffffff;
+        }
+        h1, h2, h3 {
+            color: #000000;
+            border-bottom: 1px solid #dee2e6;
+            padding-bottom: 10px;
+            margin-top: 45px;
+        }
+        h1 {
+            text-align: center;
+            font-size: 2.8em;
+            margin-bottom: 30px;
+            border-bottom: 3px solid #000000;
+        }
+        h2 { font-size: 2.2em; }
+        h3 { font-size: 1.6em; border-bottom: none; }
+        code {
+            background-color: #f8f9fa;
+            padding: 3px 7px;
+            border-radius: 5px;
+            font-family: "SF Mono", "Fira Code", "Courier New", Courier, monospace;
+            font-size: 0.95em;
+            border: 1px solid #e9ecef;
+        }
+        pre {
+            background-color: #212529;
+            color: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            overflow-x: auto;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+        blockquote {
+            border-left: 5px solid #6c757d;
+            padding-left: 20px;
+            margin: 25px 0;
+            font-style: italic;
+            color: #495057;
+        }
+        .importante {
+            color: #dc3545;
+            font-weight: bold;
+        }
+        .toc {
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 40px;
+        }
+        .toc ul { padding-left: 20px; list-style-type: none; }
+        .toc ul li { margin-bottom: 10px; }
+        .toc a { text-decoration: none; color: #0d6efd; }
+        .toc a:hover { text-decoration: underline; }
+        .externo {
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
+            padding: 20px;
+            margin: 25px 0;
+            border-radius: 8px;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Guía de Implementación:<br>Nodo Lightning LND (Neutrino) con UI RTL</h1>
+    
+    <div class="toc">
+        <h2>Índice</h2>
+        <ul>
+            <li><a href="#intro"><strong>1.0 Introducción</strong></a></li>
+            <li><a href="#fase0"><strong>2.0 Prerrequisitos: Configuración de Entorno Local</strong></a></li>
+            <li><a href="#fase1"><strong>3.0 Fase I: Despliegue de Infraestructura en la Nube (AWS)</strong></a></li>
+            <li><a href="#fase2"><strong>4.0 Fase II: Aseguramiento y Puesta a Punto del Servidor</strong></a></li>
+            <li><a href="#fase3"><strong>5.0 Fase III: Instalación del Demonio Lightning (LND)</strong></a></li>
+            <li><a href="#fase4"><strong>6.0 Fase IV: Instalación de la Interfaz de Usuario (Ride The Lightning)</strong></a></li>
+            <li><a href="#fase5"><strong>7.0 Fase V: Lanzamiento, Configuración Final y Verificación</strong></a></li>
+            <li><a href="#conclusion"><strong>8.0 Conclusión</strong></a></li>
+        </ul>
+    </div>
+
+    <h2 id="intro">1.0 Introducción</h2>
+    <p>Este documento constituye una guía técnica detallada para la implementación de un nodo de Lightning Network utilizando LND en modo Neutrino sobre una Máquina Virtual (VM) en la nube. La guía está dirigida a usuarios con un nivel de conocimiento técnico básico o intermedio, a partir de los 15 años de edad.</p>
+    <p>El objetivo es desplegar un sistema funcional, seguro y resiliente, que incluye el nodo LND, una interfaz de usuario web (Ride The Lightning - RTL), y una capa de red privada segura (Tailscale). Todos los componentes se configurarán como servicios automáticos que sobreviven a reinicios del sistema.</p>
+    <blockquote>
+        <strong>Metodología:</strong> Se seguirá un enfoque metódico de análisis, planificación, ejecución y verificación para cada fase, explicando la justificación técnica de cada paso para asegurar una comprensión profunda del proceso.
+    </blockquote>
+
+    <h2 id="fase0">2.0 Prerrequisitos: Configuración de Entorno Local</h2>
+    <p>Antes del despliegue en la nube, es necesario preparar el cliente de acceso seguro en su máquina local.</p>
+    <h3>2.1 Creación de Cuenta y Configuración de Tailscale</h3>
+    <div class="externo">
+        <p><strong>ACCIÓN EXTERNA (Navegador Web y Máquina Local)</strong></p>
+        <ol>
+            <li><strong>Creación de Cuenta:</strong> Navegue a <code>https://tailscale.com</code> y regístrese para obtener una cuenta gratuita utilizando un proveedor de identidad existente (Google, GitHub, etc.).</li>
+            <li><strong>Instalación en Cliente Local:</strong> Descargue e instale el cliente de Tailscale para su sistema operativo (e.g., desde la Mac App Store para macOS).</li>
+            <li><strong>Autenticación del Cliente:</strong> Inicie la aplicación de Tailscale en su máquina local e inicie sesión con la cuenta creada en el paso anterior. Esto establece su computadora como un dispositivo dentro de su red privada segura (tailnet).</li>
+        </ol>
+    </div>
+
+    <h2 id="fase1">3.0 Fase I: Despliegue de Infraestructura en la Nube (AWS)</h2>
+    <p>Se provisionará una máquina virtual en Amazon Web Services (AWS) que servirá como host para nuestro nodo.</p>
+
+    <h3>3.1 Creación de Cuenta en AWS</h3>
+    <div class="externo">
+        <p><strong>ACCIÓN EXTERNA (Navegador Web)</strong></p>
+        <p>Si no posee una, cree una cuenta en la capa gratuita de AWS en <code>https://aws.amazon.com/free/</code>. Se requiere un método de pago para verificación de identidad.</p>
+    </div>
+
+    <h3>3.2 Lanzamiento de Instancia EC2</h3>
+    <div class="externo">
+        <p><strong>ACCIÓN EXTERNA (Consola de AWS)</strong></p>
+        <p>Siga este checklist para configurar y lanzar la instancia:</p>
+        <ul>
+            <li><strong>Nombre:</strong> <code>nodo-rtl-neutrino</code></li>
+            <li><strong>AMI:</strong> Ubuntu (versión LTS elegible para capa gratuita, ej. 24.04).</li>
+            <li><strong>Tipo de Instancia:</strong> <code>t2.micro</code> (elegible para capa gratuita).</li>
+            <li><strong>Key Pair (Llave de Acceso):</strong> Cree una nueva llave, formato <code>.pem</code>. Descárguela y guárdela en una ubicación segura y permanente. <strong class="importante">La pérdida de esta llave implica la pérdida de acceso irrecuperable al servidor.</strong></li>
+            <li><strong>Network Settings:</strong> Permita tráfico SSH (puerto 22) temporalmente.</li>
+            <li><strong>Almacenamiento:</strong> Configure <code>20 GiB</code> de almacenamiento de tipo <code>gp3</code>.</li>
+            <li>Finalice y lance la instancia.</li>
+        </ul>
+    </div>
+    
+    <h3>3.3 Conexión SSH Inicial</h3>
+    <p>Obtenga la dirección <code>Public IPv4 address</code> de su instancia desde la consola de AWS.</p>
+    <div class="externo">
+        <p><strong>ACCIÓN EXTERNA (Terminal de su Máquina Local)</strong></p>
+        <p>Asegure los permisos del archivo de la llave y establezca la conexión.</p>
+        <pre><code># Mover la llave a la carpeta segura de SSH
+mkdir -p ~/.ssh
+mv /ruta/a/su/llave-rtl.pem ~/.ssh/
+
+# Asignar permisos de sólo lectura al propietario
+chmod 400 ~/.ssh/llave-rtl.pem
+
+# Conectar al servidor (reemplace TU_IP_PUBLICA)
+ssh -i ~/.ssh/llave-rtl.pem ubuntu@TU_IP_PUBLICA</code></pre>
+    </div>
+
+    <h2 id="fase2">4.0 Fase II: Aseguramiento y Puesta a Punto del Servidor</h2>
+    <p>Ya dentro de la terminal de la VM, se procederá a su fortalecimiento y aseguramiento.</p>
+
+    <h3>4.1 Actualización del Sistema y Creación de Swap</h3>
+    <blockquote><strong>Justificación Técnica:</strong> Las instancias `t2.micro` poseen 1GB de RAM, una cantidad insuficiente para procesos de compilación o picos de uso de software. Un archivo de swap utiliza el almacenamiento en disco como memoria RAM virtual de emergencia, previniendo fallos por falta de memoria (Out-of-Memory).</blockquote>
+    <p>Este comando único actualizará los paquetes del sistema y creará un archivo swap de 2GB, activándolo y asegurando su persistencia entre reinicios.</p>
+    <pre><code>sudo apt update && sudo apt upgrade -y && sudo fallocate -l 2G /swapfile && sudo chmod 600 /swapfile && sudo mkswap /swapfile && sudo swapon /swapfile && echo '/swapfile none swap sw 0 0' | sudo tee -a /etc/fstab</code></pre>
+
+    <h3>4.2 Integración a la Red Privada y Aseguramiento del Firewall</h3>
+    <p>Se instalará Tailscale en la VM para unirla a la red privada y posteriormente se cerrará el acceso público.</p>
+    <pre><code># Instalar y conectar Tailscale
+curl -fsSL https://tailscale.com/install.sh | sh && sudo tailscale up</code></pre>
+    <p>Autorice la nueva máquina a través del enlace proporcionado. Luego, obtenga y anote la dirección IP de su VM en la red Tailscale.</p>
+    <pre><code>tailscale ip -4</code></pre>
+    <div class="externo">
+        <p><strong>ACCIÓN EXTERNA (Consola de AWS)</strong></p>
+        <p>Navegue a los `Security Groups` de su instancia y elimine la regla de entrada para el puerto 22 (`SSH`) con origen `0.0.0.0/0`. <strong class="importante">Su conexión actual será terminada.</strong> Para volver a acceder, debe usar la IP de Tailscale que acaba de anotar. </p>
+    </div>
+
+    <h2 id="fase3">5.0 Fase III: Instalación del Demonio Lightning (LND)</h2>
+    <p>Esta arquitectura solo requiere LND en la VM, operando en modo Neutrino.</p>
+
+    <h3>5.1 Instalación del Binario de LND</h3>
+    <p>Se instalará una versión estable de LND directamente desde los binarios oficiales.</p>
+    <pre><code>LND_VERSION=0.19.0-beta && \
+wget https://github.com/lightningnetwork/lnd/releases/download/v${LND_VERSION}/lnd-linux-amd64-v${LND_VERSION}.tar.gz && \
+wget https://github.com/lightningnetwork/lnd/releases/download/v${LND_VERSION}/manifest-v${LND_VERSION}.txt && \
+grep "lnd-linux-amd64-v${LND_VERSION}.tar.gz" manifest-v${LND_VERSION}.txt | sha256sum -c - && \
+tar -xvf lnd-linux-amd64-v${LND_VERSION}.tar.gz && \
+sudo install -m 0755 -o root -g root -t /usr/local/bin lnd-linux-amd64-v${LND_VERSION}/* && \
+rm -rf lnd-linux-amd64-v${LND_VERSION}*</code></pre>
+    <p>Verifique la salida `...: OK` para confirmar la integridad del archivo.</p>
+    
+    <h3>5.2 Configuración y Automatización del Servicio LND</h3>
+    <p>Se creará el archivo de configuración y el servicio `systemd`.</p>
+    <pre><code>mkdir ~/.lnd
+nano ~/.lnd/lnd.conf</code></pre>
+    <p>Contenido para `lnd.conf`:</p>
+    <pre><code>[Application Options]
+listen=0.0.0.0:9735
+rpclisten=0.0.0.0:10009
+
+[Bitcoin]
+bitcoin.active=true
+bitcoin.testnet=true
+bitcoin.node=neutrino
+
+[Neutrino]
+neutrino.connect=faucet.lightning.community
+neutrino.connect=testnet1.nodes.lightning.engineering
+neutrino.connect=testnet.lnolymp.us
+neutrino.connect=testnet.blixtwallet.com</code></pre>
+    <p>Ahora, cree el archivo de servicio `systemd`.</p>
+    <pre><code>sudo nano /etc/systemd/system/lnd.service</code></pre>
+    <p>Contenido para `lnd.service`:</p>
+    <pre><code>[Unit]
+Description=LND Lightning Network Daemon (Neutrino Mode)
+Wants=tailscaled.service
+After=tailscaled.service
+
+[Service]
+ExecStart=/usr/local/bin/lnd
+User=ubuntu
+Group=ubuntu
+Restart=on-failure
+RestartSec=60
+
+[Install]
+WantedBy=multi-user.target</code></pre>
+    <p>Finalmente, active y arranque el servicio.</p>
+    <pre><code>sudo systemctl daemon-reload && sudo systemctl enable lnd.service && sudo systemctl start lnd.service</code></pre>
+
+    <h2 id="fase4">6.0 Fase IV: Instalación de la Interfaz de Usuario (Ride The Lightning)</h2>
+    
+    <h3>6.1 Instalación de Prerrequisitos (Node.js y PM2)</h3>
+    <p>RTL requiere un entorno de ejecución de JavaScript (Node.js) y un gestor de procesos (PM2).</p>
+    <pre><code># Instalar nvm, node y pm2
+curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash
+export NVM_DIR="$HOME/.nvm"
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+nvm install --lts
+npm install -g pm2</code></pre>
+    
+    <h3>6.2 Descarga e Instalación de Dependencias de RTL</h3>
+    <p>Se clonará el repositorio de RTL y se instalarán sus dependencias.</p>
+    <pre><code># Descargar el código fuente de RTL
+git clone https://github.com/Ride-The-Lightning/RTL.git
+
+# Ingresar a la carpeta del proyecto
+cd RTL
+
+# Instalar las dependencias de Node.js
+npm install --legacy-peer-deps</code></pre>
+
+    <h2 id="fase5">7.0 Fase V: Lanzamiento, Configuración Final y Verificación</h2>
+    
+    <h3>7.1 Configuración de RTL</h3>
+    <p>Se creará el archivo de configuración `RTL-Config.json` a partir del archivo de ejemplo.</p>
+    <pre><code># Asegurarse de estar en la carpeta ~/RTL
+cp Sample-RTL-Config.json RTL-Config.json
+nano RTL-Config.json</code></pre>
+    <p>Reemplace el contenido del archivo con la siguiente plantilla, estableciendo una contraseña segura en `multiPass`.</p>
+    <pre><code>{
+  "multiPass": "tu-contraseña-super-segura",
+  "port": "3000",
+  "defaultNodeIndex": 1,
+  "SSO": { "rtlSSO": 0 },
+  "nodes": [
+    {
+      "index": 1,
+      "lnNode": "Mi Nodo Neutrino",
+      "lnImplementation": "LND",
+      "authentication": {
+        "macaroonPath": "/home/ubuntu/.lnd/data/chain/bitcoin/testnet"
+      },
+      "settings": {
+        "userPersona": "OPERATOR",
+        "themeMode": "NIGHT",
+        "themeColor": "PURPLE",
+        "lnServerUrl": "https://localhost:10009"
+      }
+    }
+  ]
+}</code></pre>
+    
+    <h3>7.2 Creación de la Cartera LND</h3>
+    <blockquote><strong>Justificación Técnica:</strong> RTL requiere que los archivos de autenticación (`admin.macaroon`) y seguridad (`tls.cert`) existan para poder conectarse a LND. Estos archivos solo se generan después de que la cartera de LND es creada por primera vez.</blockquote>
+    <p>Ejecute el comando para crear la cartera de su nodo de Testnet.</p>
+    <pre><code>lncli --network=testnet create</code></pre>
+    <p>Siga el proceso interactivo: establezca una contraseña, responda `no` a usar una semilla existente y, muy importante, <strong class="importante">anote y guarde de forma segura las 24 palabras de la semilla que se generarán.</strong></p>
+    
+    <h3>7.3 Lanzamiento y Automatización de RTL</h3>
+    <p>Inicie RTL con el gestor de procesos PM2 y configure su auto-arranque.</p>
+    <pre><code># Asegúrese de estar en la carpeta ~/RTL
+cd ~/RTL
+
+# Iniciar RTL con PM2
+pm2 start rtl.js --name RTL
+
+# Guardar la lista de procesos para que PM2 la recuerde
+pm2 save
+
+# Generar y ejecutar el comando de auto-arranque para PM2
+pm2 startup
+# (Recuerde copiar y ejecutar el comando 'sudo env...' que se mostrará)
+</code></pre>
+
+    <h3>7.4 Prueba de Fuego Final y Acceso</h3>
+    <p>Para verificar la resiliencia del sistema, reinicie la máquina virtual.</p>
+    <pre><code>sudo reboot</code></pre>
+    <p>Espere 2-3 minutos, reconéctese vía Tailscale y verifique el estado de los servicios:</p>
+    <pre><code>sudo systemctl status lnd
+pm2 status</code></pre>
+    <p>Ambos servicios deben mostrar un estado `active (running)` u `online`.</p>
+    
+    <div class="externo">
+        <p><strong>ACCIÓN EXTERNA (Navegador Web)</strong></p>
+        <p>Finalmente, acceda a su panel de control de RTL a través de la dirección de Tailscale de la VM en el puerto 3000:</p>
+        <p><strong><code>http://TU_IP_DE_TAILSCALE:3000</code></strong></p>
+        <p>Inicie sesión con la contraseña (`multiPass`) que estableció en el archivo `RTL-Config.json`.</p>
+    </div>
+    
+    <h2 id="conclusion">8.0 Conclusión</h2>
+    <p>¡Felicitaciones! Ha desplegado exitosamente un nodo de Lightning Network ligero, seguro, resiliente y con una interfaz de gestión profesional. Ha completado un ciclo de aprendizaje que abarca desde la provisión de infraestructura en la nube hasta la depuración de software y la configuración de servicios de nivel de producción.</p>
+    <p>El sistema actual es una base sólida sobre la cual puede continuar su exploración del ecosistema Lightning: fondear su cartera desde un faucet de Testnet, conectarse a nuevos peers y abrir sus primeros canales.</p>
+
+</body>
+</html>
