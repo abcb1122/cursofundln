@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manual de Campo del Operador de Nodo v2.0</title>
+    <style>
+        /* --- EstiloCursoAriel v1.0 --- */
+        /* Basado en https://abcb1122.github.io/cursofundln/ */
+
+        /* --- MODO CLARO (POR DEFECTO) --- */
+        :root {
+            --bg-color: #ffffff;
+            --text-color: #212529;
+            --container-bg: #ffffff;
+            --border-color: #dee2e6;
+            --heading-color: #000000;
+            --accent-color: #0d6efd;
+            --blockquote-bg: #f8f9fa;
+            --blockquote-border: #0d6efd;
+            --code-bg: #e9ecef;
+            --code-inline-color: #d63384;
+            --code-block-color: #f8f8f2;
+            --code-block-bg: #212529;
+            --subtle-text: #495057;
+        }
+
+        /* --- MODO OSCURO (DINÁMICO) --- */
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --bg-color: #121212;
+                --text-color: #E0E0E0;
+                --container-bg: #1E1E1E;
+                --border-color: #373737;
+                --heading-color: #BB86FC;
+                --accent-color: #03DAC6;
+                --blockquote-bg: #2a2a2a;
+                --blockquote-border: #03DAC6;
+                --code-bg: #333333;
+                --code-inline-color: #f9a8d4;
+                --code-block-color: #f8f8f2;
+                --code-block-bg: #2d2d2d;
+                --subtle-text: #a0a0a0;
+            }
+            h1, h2 { border-color: #373737; }
+        }
+
+        /* --- ESTILOS GENERALES --- */
+        body {
+            font-family: Georgia, 'Times New Roman', Times, serif;
+            line-height: 1.8;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 20px;
+            transition: background-color 0.3s, color 0.3s;
+        }
+        .container {
+            max-width: 900px;
+            margin: 20px auto;
+            background-color: var(--container-bg);
+            padding: 40px 60px;
+            border: 1px solid var(--border-color);
+            transition: background-color 0.3s, border-color 0.3s;
+        }
+        h1, h2, h3, h4 {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            font-weight: 600;
+            color: var(--heading-color);
+            margin-top: 50px;
+        }
+        h1 {
+            text-align: center;
+            font-size: 2.6em;
+            font-weight: 700;
+            border-bottom: 2px solid var(--heading-color);
+            margin-bottom: 20px;
+            padding-bottom: 20px;
+        }
+        h2 {
+            font-size: 2em;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 10px;
+        }
+        h3 {
+            font-size: 1.5em;
+            border-bottom: none;
+            margin-top: 40px;
+            color: var(--subtle-text);
+        }
+        p, li {
+            font-size: 1.1em;
+            text-align: justify;
+        }
+        blockquote {
+            background-color: var(--blockquote-bg);
+            border-left: 4px solid var(--blockquote-border);
+            padding: 15px 20px;
+            margin: 25px 0;
+            border-radius: 4px;
+        }
+        code {
+            background-color: var(--code-bg);
+            color: var(--code-inline-color);
+            padding: 2px 5px;
+            border-radius: 4px;
+            font-family: "SFMono-Regular", Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+            font-size: 0.9em;
+        }
+        pre {
+            background-color: var(--code-block-bg);
+            padding: 20px;
+            border-radius: 8px;
+            overflow-x: auto;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+        pre code {
+            background-color: transparent;
+            color: var(--code-block-color);
+            padding: 0;
+            border: none;
+            font-size: 1em;
+        }
+        .importante { color: #dc3545; font-weight: bold; }
+    </style>
+</head>
+<body>
+<div class="container">
+
+    <h1>Manual de Campo del Operador de Nodo</h1>
+    <p style="text-align: center; font-style: italic; color: var(--subtle-text);">Versión 2.0 - Un Glosario Técnico y Conceptual</p>
+
+    <h2>1.0 Conceptos Fundamentales del Servidor</h2>
+    <p>Antes de ejecutar comandos, es crucial entender el terreno donde operamos.</p>
+    
+    <h3>1.1 ¿Qué es una VM (Máquina Virtual)?</h3>
+    <p>Es una computadora completa que vive como un programa dentro de otra computadora física mucho más grande en un centro de datos (en nuestro caso, de Amazon). Alquilamos una pequeña porción de esa súper computadora para nuestro uso exclusivo. Aunque no la podemos tocar, la controlamos como si estuviera en nuestro escritorio.</p>
+    
+    <h3>1.2 ¿Qué es una Terminal y SSH?</h3>
+    <p>La **Terminal** es una ventana de texto que nos permite hablar directamente con el sistema operativo de nuestra VM. En lugar de hacer clics, le damos órdenes escritas.</p>
+    <p>**SSH (Secure Shell)** es el túnel encriptado y seguro que usamos para conectar nuestra terminal local con la terminal de la VM en la nube. La "llave" (el archivo <code>.pem</code>) que creamos en AWS es la única llave que puede abrir la cerradura de este túnel, garantizando que solo nosotros podamos entrar.</p>
+
+    <h3>1.3 ¿Qué es un Puerto?</h3>
+    <blockquote><strong>Analogía: Las Puertas de un Edificio.</strong> Piensa en tu servidor como un gran edificio. Un puerto es simplemente una puerta numerada. Cada programa que quiere ofrecer un servicio a la red (como LND o RTL) se para detrás de una puerta a escuchar. LND usa la puerta 9735 para hablar con otros nodos, y la 10009 para recibir órdenes. RTL usa la 3000, etc. Un firewall es el guardia de seguridad que decide qué puertas están abiertas y quién puede tocar.</blockquote>
+    
+    <h3>1.4 ¿Qué es un Servicio o Demonio?</h3>
+    <p>Un "demonio" (daemon) o "servicio" es un programa diseñado para correr en el fondo, sin intervención del usuario. Cuando configuramos `lnd` o `loopd` como un servicio de `systemd`, le estamos diciendo al sistema operativo: "Contrata a este programa como un empleado de tiempo completo. Asegúrate de que siempre esté corriendo, y si se cae, levántalo de nuevo".</p>
+
+    <h2>2.0 La Caja de Herramientas de Linux (Comandos)</h2>
+    <p>Estos son los comandos esenciales que hemos utilizado.</p>
+    
+    <h3>Navegación y Gestión de Archivos</h3>
+    <dl>
+        <dt><code>ls -la</code></dt>
+        <dd>Nuestra "linterna con visión de rayos X". Lista (`ls`) todos los archivos (`-a`), incluyendo los ocultos, en un formato de lista larga (`-l`) con detalles.</dd>
+        
+        <dt><code>cd &lt;directorio&gt;</code></dt>
+        <dd>Nuestro "transportador". Cambia (`cd`) al directorio especificado. Ej: <code>cd ~/lnbits</code>.</dd>
+        
+        <dt><code>cp &lt;origen&gt; &lt;destino&gt;</code></dt>
+        <dd>La "fotocopiadora". Copia (`cp`) un archivo o directorio.</dd>
+
+        <dt><code>rm -rf &lt;directorio&gt;</code></dt>
+        <dd>La "trituradora". Elimina (`rm`) archivos o directorios. La bandera `-r` significa "recursivo" (borra carpetas y su contenido) y `-f` significa "forzar" (no pregunta). <span class="importante">Es un comando muy poderoso y peligroso.</span></dd>
+
+        <dt><code>mkdir &lt;nombre&gt;</code></dt>
+        <dd>El "constructor". Crea (`mkdir`) un nuevo directorio.</dd>
+        
+        <dt><code>cat &lt;archivo&gt;</code></dt>
+        <dd>Muestra el contenido completo de un archivo en la terminal.</dd>
+        
+        <dt><code>nano &lt;archivo&gt;</code></dt>
+        <dd>Abre un editor de texto simple en la terminal para crear o modificar archivos.</dd>
+    </dl>
+    
+    <h3>Gestión de Software y Sistema</h3>
+    <dl>
+        <dt><code>sudo &lt;comando&gt;</code></dt>
+        <dd>La "llave maestra". Ejecuta un comando con privilegios de superusuario (administrador).</dd>
+        
+        <dt><code>sudo apt install &lt;paquete&gt;</code></dt>
+        <dd>Va al "supermercado de Ubuntu" (`apt`) e instala un programa pre-empaquetado.</dd>
+
+        <dt><code>systemctl &lt;acción&gt; &lt;servicio&gt;</code></dt>
+        <dd>Nuestro control remoto para el "gerente" `systemd`. Permite controlar servicios.
+            <ul>
+                <li><code>start</code>: Inicia un servicio ahora.</li>
+                <li><code>stop</code>: Detiene un servicio ahora.</li>
+                <li><code>restart</code>: Lo reinicia.</li>
+                <li><code>status</code>: Muestra su estado actual.</li>
+                <li><code>enable</code>: Le dice a `systemd` que inicie este servicio automáticamente en cada reboot.</li>
+                <li><code>disable</code>: Le dice a `systemd` que NO lo inicie automáticamente.</li>
+            </ul>
+        </dd>
+
+        <dt><code>journalctl -u &lt;servicio&gt; -f</code></dt>
+        <dd>La "caja negra" o la "radio". Muestra los logs de un servicio en tiempo real (`-f` significa "follow").</dd>
+
+        <dt><code>pm2 &lt;acción&gt;</code></dt>
+        <dd>El "gerente" para aplicaciones de Node.js.
+            <ul>
+                <li><code>start &lt;script&gt; --name &lt;nombre&gt;</code>: Inicia una aplicación y le da un nombre.</li>
+                <li><code>status</code>: Muestra la tabla de aplicaciones que está gestionando.</li>
+                <li><code>logs &lt;nombre&gt;</code>: Muestra los logs de una aplicación específica.</li>
+                <li><code>save</code>: Guarda la lista de procesos activos para que puedan ser revividos.</li>
+                <li><code>startup</code>: Genera un comando para hacer que `pm2` se inicie con el sistema.</li>
+                <li><code>kill</code>: Detiene al propio `pm2` y a todos los procesos que gestiona.</li>
+            </ul>
+        </dd>
+    </dl>
+    
+    <h2>3.0 Nuestro Ecosistema de 5 Programas</h2>
+    <p>Así es como nuestros 5 programas estrella se conectan y por qué cada uno es importante.</p>
+
+    <h3>3.1 Tailscale (`tailscaled`)</h3>
+    <ul>
+        <li><strong>¿Qué es?</strong> Es la capa de seguridad de nuestra red. Nuestro "pasadizo secreto".</li>
+        <li><strong>¿Cómo se conecta?</strong> Se conecta a los servidores de Tailscale en internet para coordinar y crear una red privada virtual (VPN) entre tus dispositivos autorizados.</li>
+        <li><strong>¿Por qué lo usamos?</strong> Para poder acceder a los puertos de nuestros servicios (como RTL y LNbits) de forma segura desde nuestra Mac o celular, sin tener que abrir esos puertos a todo el internet.</li>
+    </ul>
+
+    <h3>3.2 LND (`lnd`)</h3>
+    <ul>
+        <li><strong>¿Qué es?</strong> Es el corazón, el "motor" de nuestro nodo Lightning.</li>
+        <li><strong>¿Cómo se conecta?</strong> En nuestra configuración Neutrino, LND se conecta a nodos públicos de confianza de la red Bitcoin Testnet (como `faucet.lightning.community`) para descargar los encabezados y filtros de la blockchain. Además, abre el puerto <code>9735</code> para hablar con otros nodos de Lightning, y los puertos <code>10009</code> (RPC) y <code>8080</code> (REST) para recibir órdenes de nuestras aplicaciones de gestión.</li>
+        <li><strong>¿Por qué lo usamos?</strong> Es el software que gestiona nuestra cartera, abre y cierra canales, y envía, recibe y enruta pagos.</li>
+    </ul>
+    
+    <h3>3.3 Loop (`loopd`)</h3>
+    <ul>
+        <li><strong>¿Qué es?</strong> Es el "gestor de liquidez".</li>
+        <li><strong>¿Cómo se conecta?</strong> Se conecta internamente a nuestro propio LND (en `localhost:10009`) para recibir órdenes. Cuando se ejecuta un swap, se conecta a los servidores de Lightning Labs a través de la red Lightning y la red Bitcoin.</li>
+        <li><strong>¿Por qué lo usamos?</strong> Para realizar "submarine swaps" como el Loop Out, que nos permite convertir liquidez de salida de un canal en fondos on-chain, rebalanceando así nuestros canales.</li>
+    </ul>
+
+    <h3>3.4 Ride The Lightning (`rtl.js` via `pm2`)</h3>
+    <ul>
+        <li><strong>¿Qué es?</strong> Nuestro "tablero de Fórmula 1". Una interfaz web para la gestión avanzada del nodo.</li>
+        <li><strong>¿Cómo se conecta?</strong> Se conecta a la API REST de nuestro LND (en `https://localhost:8080`) usando el `tls.cert` y el `admin.macaroon` para autenticarse. Escucha en el puerto `3000` para que nosotros nos conectemos desde el navegador.</li>
+        <li><strong>¿Por qué lo usamos?</strong> Para tener una vista detallada de nuestros canales, peers, transacciones y para ejecutar operaciones como conectar a peers o abrir canales de forma gráfica.</li>
+    </ul>
+    
+    <h3>3.5 LNbits (vía `pm2`)</h3>
+    <ul>
+        <li><strong>¿Qué es?</strong> Nuestro "portal de carteras" o "constructor de aplicaciones".</li>
+        <li><strong>¿Cómo se conecta?</strong> Al igual que RTL, se conecta a la API REST de nuestro LND (en `https://localhost:8080`) usando el `tls.cert` y el `admin.macaroon`. Escucha en el puerto `5000` para que nos conectemos desde el navegador.</li>
+        <li><strong>¿Por qué lo usamos?</strong> Para crear múltiples carteras Lightning independientes encima de nuestro único nodo, y para usar su increíble ecosistema de extensiones.</li>
+    </ul>
+
+</div>
+</body>
+</html>
